@@ -76,6 +76,7 @@ def example_preprocessing():
     
     # 预处理配置
     config = {
+        # legacy/teaching example only; formal Phase 1 uses 2048.
         'window_length': 1024,
         'overlap': 0.5,
         'normalize_method': 'z-score'
@@ -101,6 +102,7 @@ def example_dataset_creation():
     print("=" * 50)
     
     # 创建模拟数据
+    # Synthetic generic example, not a formal WDCNN input fixture.
     signals = np.random.randn(100, 1024)
     labels = np.random.randint(0, 3, 100)
     

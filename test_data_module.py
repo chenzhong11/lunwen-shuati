@@ -13,7 +13,7 @@ import numpy as np
 
 def test_preprocessing():
     """测试预处理模块"""
-    from data.preprocessing import segment_signal, normalize, create_labels
+    from src.data.preprocessing import segment_signal, normalize, create_labels
     
     print("测试预处理模块...")
     
@@ -36,7 +36,7 @@ def test_preprocessing():
 
 def test_dataset():
     """测试数据集模块"""
-    from data.dataset import CWRUDataset
+    from src.data.dataset import CWRUDataset
     
     print("测试数据集模块...")
     
@@ -59,29 +59,35 @@ def test_dataset():
 
 def test_leakage_checker():
     """测试数据泄漏检查模块"""
-    from data.leakage_checker import DataLeakageChecker
+    from src.data.leakage_checker import DataLeakageChecker
     
     print("测试数据泄漏检查模块...")
     
     checker = DataLeakageChecker()
     
     # 模拟来源信息
-    source_info = [
-        {'file_path': 'file1.mat', 'start_position': 0, 'end_position': 100, 'load_condition': 0},
-        {'file_path': 'file1.mat', 'start_position': 50, 'end_position': 150, 'load_condition': 0},
-    ]
-    
-    target_info = [
-        {'file_path': 'file2.mat', 'start_position': 0, 'end_position': 100, 'load_condition': 2},
-        {'file_path': 'file2.mat', 'start_position': 100, 'end_position': 200, 'load_condition': 2},
-    ]
-    
-    # 检查重叠
-    result = checker.check_source_target_overlap(source_info, target_info)
-    print(f"  泄漏检测: {'发现泄漏' if result['leakage_detected'] else '未发现泄漏'}")
+    scenario_data = {
+        'source': {
+            'files': {'file1.mat'}, 'load': 1,
+            'provenance': [
+                {'source_file': 'file1.mat', 'window_start': 0, 'window_end': 100},
+                {'source_file': 'file1.mat', 'window_start': 100, 'window_end': 200},
+            ],
+        },
+        'target': {
+            'files': {'file2.mat'}, 'load': 2,
+            'provenance': [
+                {'source_file': 'file2.mat', 'window_start': 0, 'window_end': 100},
+                {'source_file': 'file2.mat', 'window_start': 100, 'window_end': 200},
+            ],
+        },
+    }
+    result = checker.run_all_checks(scenario_data)
+    assert result['passed']
+    print('  泄漏检测: 未发现 source/target 交叉泄漏')
     
     # 生成报告
-    report = checker.generate_report()
+    report = checker.generate_report(result)
     print(f"  报告长度: {len(report)} 字符")
     
     print("数据泄漏检查模块测试完成!\n")
@@ -89,20 +95,19 @@ def test_leakage_checker():
 
 def test_cwru_loader():
     """测试 CWRU 加载器（不实际下载）"""
-    from data.cwru_loader import CWRULoader
+    from src.data.cwru_loader import CWRULoader
     
     print("测试 CWRU 加载器...")
     
     config = {
-        'data_path': './data/cwru',
+        'data_path': './data/raw',
         'fault_types': ['normal', 'ball_007', 'inner_007'],
-        'load_conditions': [0, 1],
         'channel': 'DE'
     }
     
     loader = CWRULoader(config)
     print(f"  配置加载成功: {loader.fault_types}")
-    print(f"  负载条件: {loader.load_conditions}")
+    print('  负载条件: 由 load_load_condition(load_hp) 按需读取')
     print(f"  通道: {loader.channel}")
     
     print("CWRU 加载器测试完成!\n")
@@ -122,7 +127,7 @@ def main():
         test_cwru_loader()
         
         print("=" * 50)
-        print("所有测试通过!")
+        print("所有已执行数据模块烟测通过!")
         print("=" * 50)
         
     except Exception as e:

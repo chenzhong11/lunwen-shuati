@@ -1,5 +1,7 @@
-# CWRU 数据集配置示例
+# CWRU 数据集配置示例（legacy/generic data-module example）
 # ==================
+# 注意：本文件不是正式 Phase 1 WDCNN 配置。正式输入长度统一由
+# config/default.yaml 的 2048 和 create_scenario() 数据流定义。
 
 # 数据路径配置
 data:
@@ -27,7 +29,7 @@ loader:
 
 # 预处理配置
 preprocessing:
-  window_length: 1024
+  window_length: 1024  # legacy/example only; formal Phase 1 uses 2048
   overlap: 0.5
   normalize_method: "z-score"
   

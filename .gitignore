@@ -7,9 +7,9 @@ build/
 .eggs/
 
 # Data
-data/
-data/raw/*.mat
-data/processed/*.npz
+/data/
+/data/raw/*.mat
+/data/processed/*.npz
 
 # Codex local working files
 _codex_workspace/
@@ -27,4 +27,3 @@ experiments/figures/
 # OS
 .DS_Store
 Thumbs.db
-

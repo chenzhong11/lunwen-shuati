@@ -54,6 +54,7 @@ from data.preprocessing import segment_signal, normalize, preprocess_pipeline
 
 # 信号分段
 signal = data['signals'][0]
+# 通用 API 示例（legacy/teaching only；正式 Phase 1 使用 2048）
 segments = segment_signal(signal, window_length=1024, overlap=0.5)
 
 # 归一化
@@ -61,7 +62,7 @@ normalized_data, norm_params = normalize(segments, method='z-score')
 
 # 完整预处理流程
 config = {
-    'window_length': 1024,
+    'window_length': 1024,  # legacy/teaching only; formal Phase 1 uses 2048
     'overlap': 0.5,
     'normalize_method': 'z-score'
 }

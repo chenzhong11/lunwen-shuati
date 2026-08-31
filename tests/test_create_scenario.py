@@ -8,6 +8,7 @@ create_scenario() 单元测试
 import sys
 import os
 from pathlib import Path
+import pytest
 
 # 添加项目根目录到路径
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -30,9 +31,9 @@ def test_scenario_s1_to_s6():
     """
     data_path = str(PROJECT_ROOT / "data" / "raw")
     
-    if not os.path.exists(data_path):
-        print(f"[SKIP] 数据目录不存在: {data_path}")
-        return None
+    mat_files = list(Path(data_path).glob('*.mat'))
+    if not mat_files:
+        pytest.skip(f"data/raw 不存在可用 .mat 文件: {data_path}")
         
     scenarios = {
         'S1': (1, 2),
@@ -80,7 +81,7 @@ def test_scenario_s1_to_s6():
             print(f"[FAIL] {scenario_name} 创建失败: {e}")
             all_passed = False
             
-    return all_passed
+    assert all_passed, "至少一个 S1-S6 场景的泄漏检查失败"
 
 
 def test_file_mapping():
@@ -93,10 +94,9 @@ def test_file_mapping():
         for load_hp in [0, 1, 2, 3]:
             if load_hp not in load_files:
                 print(f"[FAIL] {fault_type} 缺少 {load_hp}HP 的文件映射")
-                return False
+                assert False, f"{fault_type} 缺少 {load_hp}HP 的文件映射"
                 
     print("[PASS] 文件映射完整")
-    return True
 
 
 def test_label_mapping():
@@ -107,15 +107,14 @@ def test_label_mapping():
     
     if len(FAULT_LABEL_MAP) != 10:
         print(f"[FAIL] 标签映射数量错误: {len(FAULT_LABEL_MAP)} != 10")
-        return False
+        assert len(FAULT_LABEL_MAP) == 10
         
     labels = sorted(FAULT_LABEL_MAP.values())
     if labels != list(range(10)):
         print(f"[FAIL] 标签不连续: {labels}")
-        return False
+        assert labels == list(range(10))
         
     print("[PASS] 标签映射正确")
-    return True
 
 
 def test_segment_signal():
@@ -141,7 +140,6 @@ def test_segment_signal():
     assert segments[0][-1] == 99, "第一个窗口应到 99"
     
     print("[PASS] 信号分段正确")
-    return True
 
 
 def test_normalize_zscore():
@@ -159,7 +157,6 @@ def test_normalize_zscore():
     assert abs(np.std(normalized) - 1.0) < 1e-10, f"归一化后标准差应接近 1"
     
     print("[PASS] z-score 归一化正确")
-    return True
 
 
 def test_random_split_warning():
@@ -168,16 +165,45 @@ def test_random_split_warning():
     """
     print("\n--- 测试随机划分警告 ---")
     
-    import warnings
+    import numpy as np
     
     loader = CWRULoader({
         'data_path': 'dummy',
         'fault_types': ['normal'],
     })
-    
+    loader.raw_data = {
+        'signals': np.zeros((2, 4)),
+        'labels': np.array([0, 0]),
+    }
+
     assert hasattr(loader, 'get_splits'), "get_splits 方法应存在"
+    with pytest.warns(DeprecationWarning, match='随机划分'):
+        loader.get_splits()
     print("[PASS] get_splits 方法存在（已标记为 legacy）")
-    return True
+
+
+def test_scenario_requires_real_mat_files(tmp_path):
+    """空目录不能被误报为可用的正式场景。"""
+    with pytest.raises(FileNotFoundError, match='CWRU .mat'):
+        create_scenario(
+            data_path=str(tmp_path),
+            source_load=1,
+            target_load=2,
+            window_length=2048,
+        )
+
+
+def _run_manual(name, test_func):
+    """为直接运行本文件提供 PASS/FAIL/SKIP 汇总。"""
+    try:
+        test_func()
+        return name, 'PASS'
+    except pytest.skip.Exception as exc:
+        print(f'[SKIP] {name}: {exc.msg}')
+        return name, 'SKIP'
+    except Exception as exc:
+        print(f'[FAIL] {name}: {exc}')
+        return name, 'FAIL'
 
 
 if __name__ == '__main__':
@@ -188,37 +214,40 @@ if __name__ == '__main__':
     print("="*60)
     
     results = []
-    
-    results.append(("文件映射", test_file_mapping()))
-    results.append(("标签映射", test_label_mapping()))
-    results.append(("信号分段", test_segment_signal()))
-    results.append(("z-score 归一化", test_normalize_zscore()))
-    results.append(("随机划分警告", test_random_split_warning()))
+    for name, test_func in [
+        ('文件映射', test_file_mapping),
+        ('标签映射', test_label_mapping),
+        ('信号分段', test_segment_signal),
+        ('z-score 归一化', test_normalize_zscore),
+        ('随机划分警告', test_random_split_warning),
+    ]:
+        results.append(_run_manual(name, test_func))
     
     # 场景测试（需要实际数据）
     data_path = str(PROJECT_ROOT / "data" / "raw")
-    if os.path.exists(data_path):
-        results.append(("S1-S6 场景", test_scenario_s1_to_s6()))
+    if list(Path(data_path).glob('*.mat')):
+        results.append(_run_manual('S1-S6真实数据场景测试', test_scenario_s1_to_s6))
     else:
-        print(f"\n[SKIP] 跳过 S1-S6 场景测试（数据目录不存在）")
+        results.append(('S1-S6真实数据场景测试', 'SKIP'))
+        print(f"\n[SKIP] S1-S6真实数据场景测试：data/raw 不存在可用 .mat 文件")
         
     # 汇总结果
     print("\n" + "="*60)
     print("测试汇总")
     print("="*60)
     
-    all_passed = True
-    for name, passed in results:
-        if passed is None:
-            status = "[SKIP]"
-        elif passed:
-            status = "[PASS]"
-        else:
-            status = "[FAIL]"
-            all_passed = False
-        print(f"{status} {name}")
-        
-    if all_passed:
-        print("\n所有测试通过")
+    counts = {status: 0 for status in ('PASS', 'FAIL', 'SKIP')}
+    for name, status in results:
+        counts[status] += 1
+        print(f"[{status}] {name}")
+
+    print(f"\n{counts['PASS']} PASS")
+    print(f"{counts['FAIL']} FAIL")
+    print(f"{counts['SKIP']} SKIP")
+    if counts['FAIL']:
+        print("存在失败的测试")
+        raise SystemExit(1)
+    if counts['SKIP']:
+        print("所有已执行测试通过，但存在未执行测试。")
     else:
-        print("\n存在失败的测试")
+        print("所有测试通过。")

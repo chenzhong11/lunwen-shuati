@@ -1,217 +1,57 @@
-# Pre-flight Check Report (更新版)
-# WDCNN 论文复现项目
-# 生成时间: 2026-08-21
-# 更新时间: 2026-08-21 (BLOCKER 修复后)
+# WDCNN 论文复现 Pre-flight Check
 
----
+更新时间：2026-08-31
 
-## 总体状态: ✅ PASS (可执行实验)
+## 总体状态：PASS WITH IMPLEMENTATION GAPS
 
----
+数据协议、模型骨架和泄漏防护可以进入端到端实验实现/验证阶段；但在真实 CWRU 数据缺失时，不能声称论文复现实验已经完成或已经得到 accuracy。
 
-## 1. CWRU 数据下载脚本
+## 已通过的基础检查
 
-### 检查结果: ⚠️ WARNING
+| 检查项 | 状态 | 边界 |
+|---|---|---|
+| 论文目标和证据等级 | PASS | 目标为 Zhang 等 2017 WDCNN 论文；未说明参数保持为复现假设 |
+| CWRU 文件/标签映射 | PASS | `CWRU_FILE_MAP` 与 10 类标签映射已实现 |
+| 跨负载场景协议 | PASS | `create_scenario()` 定义 S1-S6，source/target 负载不同 |
+| 数据泄漏防护 | PASS | 文件集合、provenance、窗口来源和 AdaBN 标签隔离检查已实现 |
+| WDCNN 模型骨架 | PASS | 1D raw input，正式 `input_length=2048`，可做前向传播 |
+| AdaBN 模块 | PARTIAL | 模块存在；尚未接入正式训练入口并完成真实结果验证 |
+| Trainer/Evaluator | PARTIAL | 通用训练和评估类存在；尚无真实 CWRU 运行证据 |
+| 原始数据 | NOT READY | 当前 `data/raw/` 没有 `.mat` 文件 |
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| 下载来源 | ✅ | 使用 CWRU 官方 URL |
-| 文件映射 | ✅ | 已实现完整的 CWRU_FILE_MAP |
-| 文件完整性 | ⚠️ | 无 checksum 验证（建议手动验证） |
+## 尚未打通的部分
 
-**说明:** 下载脚本已实现，但需要手动下载或验证 URL 可用性。
+当前不能声称已经完成：
 
----
+- 完整 WDCNN + AdaBN 端到端实验；
+- S2-S6 自动训练；
+- 20 次重复实验、混淆矩阵批量汇总和论文对比报告；
+- 独立的 `.mat → .npz` 正式预处理路线。
 
-## 2. 数据预处理
+## 当前数据流
 
-### 检查结果: ✅ PASS
-
-| 检查项 | 状态 | 论文要求 | 实现 |
-|--------|------|---------|------|
-| Dataset A/B/C 映射 | ✅ | 1HP/2HP/3HP | CWRU_FILE_MAP 完整 |
-| 10 类别映射 | ✅ | Normal + 3×3 faults | FAULT_LABEL_MAP 正确 |
-| 窗口长度 | ✅ | 2048 | 2048 |
-| 训练集 overlap | ✅ | 50% (推断) | 0.5 |
-| 测试集 overlap | ✅ | 0% | 0.0 |
-| 归一化 | ✅ | z-score (推断) | z-score |
-
----
-
-## 3. 数据泄漏检查
-
-### 检查结果: ✅ PASS (BLOCKER 已修复)
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| Source/Target 独立性 | ✅ | 来自不同负载的不同 .mat 文件 |
-| 文件集合不相交 | ✅ | source_files ∩ target_files == ∅ |
-| 负载条件不同 | ✅ | source_load != target_load |
-| Provenance 唯一 | ✅ | 无重复 provenance |
-| 窗口无重叠 | ✅ | 来自不同文件，无重叠可能 |
-| AdaBN 标签隔离 | ✅ | target labels 仅用于评估 |
-
-**修复内容:**
-1. 禁用了 `get_splits()` 的随机划分逻辑（标记为 legacy）
-2. 实现了 `create_scenario()` 函数，按负载条件分离 source/target
-3. 每个样本保存完整 provenance 信息
-4. 实现了 DataLeakageChecker 进行自动检查
-
----
-
-## 4. WDCNN 模型验证
-
-### 检查结果: ✅ PASS
-
-| 层 | Kernel | Stride | Padding | Channels | 参数 |
-|----|--------|--------|---------|----------|------|
-| Conv1 | 64×1 | 16 | 24 | 1→16 | 1,040 |
-| Pool1 | 2×1 | 2 | - | - | 0 |
-| Conv2 | 3×1 | 1 | 1 | 16→32 | 1,568 |
-| Pool2 | 2×1 | 2 | - | - | 0 |
-| Conv3 | 3×1 | 1 | 1 | 32→64 | 6,208 |
-| Pool3 | 2×1 | 2 | - | - | 0 |
-| Conv4 | 3×1 | 1 | 1 | 64→64 | 12,352 |
-| Pool4 | 2×1 | 2 | - | - | 0 |
-| Conv5 | 3×1 | 1 | 0 | 64→64 | 12,352 |
-| Pool5 | 2×1 | 2 | - | - | 0 |
-| FC1 | - | - | - | 192→100 | 19,300 |
-| Output | - | - | - | 100→10 | 1,010 |
-
-**总参数: 54,510** ✅
-
----
-
-## 5. AdaBN 实现验证
-
-### 检查结果: ✅ PASS
-
-| 检查项 | 状态 | 论文要求 | 实现 |
-|--------|------|---------|------|
-| 仅替换 BN statistics | ✅ | 是 | running_mean, running_var |
-| γ/β 保持不变 | ✅ | 是 | 未修改 weight/bias |
-| target labels 不参与 | ✅ | 是 | 仅使用 target features |
-| 统计量计算方式 | ✅ | 所有 target samples | 拼接所有 batch 后计算 |
-| train/eval mode | ✅ | eval mode | compute_target_stats 时切换 |
-
----
-
-## 6. 实验配置验证
-
-### 检查结果: ✅ PASS
-
-| 场景 | 源域 | 目标域 | 论文要求 | 配置 |
-|------|------|--------|---------|------|
-| S1 | 1HP | 2HP | 1→2 | ✅ |
-| S2 | 1HP | 3HP | 1→3 | ✅ |
-| S3 | 2HP | 3HP | 2→3 | ✅ |
-| S4 | 2HP | 1HP | 2→1 | ✅ |
-| S5 | 3HP | 1HP | 3→1 | ✅ |
-| S6 | 3HP | 2HP | 3→2 | ✅ |
-
----
-
-## 7. 结果记录检查
-
-### 检查结果: ⚠️ WARNING
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| config snapshot | ⚠️ | 需在训练时自动保存 |
-| git commit | ⚠️ | 需在训练时记录 |
-| environment snapshot | ✅ | env_capture.py 已实现 |
-| provenance 记录 | ✅ | 每个样本有完整 provenance |
-
----
-
-## 修改文件列表
-
-### BLOCKER 修复涉及的文件
-
-| 文件 | 修改内容 |
-|------|---------|
-| `src/data/cwru_loader.py` | 1. 添加 CWRU_FILE_MAP 和 FAULT_LABEL_MAP<br>2. 禁用 get_splits() 随机划分（标记为 legacy）<br>3. 实现 create_scenario() 函数<br>4. 实现 segment_signal() 和 normalize_zscore() |
-| `src/data/leakage_checker.py` | 重写为 DataLeakageChecker 类，支持：<br>- 文件集合不相交检查<br>- 负载条件不同检查<br>- Provenance 唯一检查<br>- 窗口重叠检查<br>- AdaBN 标签隔离检查 |
-| `src/data/__init__.py` | 更新导出列表 |
-| `scripts/03_run_scenario.py` | 使用 create_scenario() 创建场景 |
-| `scripts/04_run_all_scenarios.py` | 使用 create_scenario() 创建场景 |
-| `tests/test_create_scenario.py` | 新增单元测试 |
-
-### 修改前的问题
-
-- `get_splits()` 使用随机 70/15/15 划分，不同负载的数据被混合
-- 同一原始信号的窗口可能同时进入 source 和 target
-- 无法保证 source 和 target 来自不同的原始文件
-
-### 修改后的数据流
-
-```
-原始 .mat 文件（按负载分离）
-    │
-    ├─ 1HP 文件 (98.mat, 119.mat, ...)
-    ├─ 2HP 文件 (99.mat, 120.mat, ...)
-    └─ 3HP 文件 (100.mat, 121.mat, ...)
-        │
-        ▼
-create_scenario(source_load, target_load)
-    │
-    ├─ source: 仅加载 source_load 对应的文件
-    │   └─ 记录 provenance (source_file, load, fault_type, window_start, end)
-    │
-    └─ target: 仅加载 target_load 对应的文件
-        └─ 记录 provenance (source_file, load, fault_type, window_start, end)
-        │
-        ▼
-DataLeakageChecker 验证
-    ├─ source_files ∩ target_files == ∅ ✓
-    ├─ source_load != target_load ✓
-    └─ provenance 无重复 ✓
+```text
+raw .mat
+  → create_scenario(source_load, target_load)
+  → 在线 2048 分段 + z-score
+  → CWRUDataset/DataLoader
+  → 1D raw WDCNN
 ```
 
----
+`02_preprocess_data.py` 现在只是 raw 数据就绪检查，不是正式必经预处理步骤。旧的 `data/processed/*.npz` 1024 样例保留用于历史/通用模块参考，不作为 Phase 1 输入。
 
-## 测试结果
+## 当前测试语义
 
-### 单元测试结果
+在无真实 `.mat` 时，基础单元测试可以通过，但 S1-S6 真实数据场景测试必须显示 `SKIP`。此状态应表述为“所有已执行测试通过，但存在未执行测试”，不能表述为“所有测试通过”。
 
+本轮实际验证：`9 passed, 1 skipped`；模型结构检查通过；S1-S6 场景检查为 `0 READY, 0 FAILED, 6 NOT READY`。
+
+## 下一步许可边界
+
+只有在 `data/raw/` 完整放入正式 CWRU 文件并通过就绪检查后，才运行：
+
+```powershell
+D:/Anaconda3/python.exe scripts/03_run_scenario.py --scenario S1 --method wdcnn
 ```
-[PASS] 文件映射
-[PASS] 标签映射
-[PASS] 信号分段
-[PASS] z-score 归一化
-[PASS] 随机划分警告
-[PASS] S1-S6 场景
 
-所有测试通过
-```
-
-### S1-S6 泄漏检查结果
-
-| 场景 | Source Load | Target Load | Source Files | Target Files | 交集 | 状态 |
-|------|-------------|-------------|--------------|--------------|------|------|
-| S1 | 1HP | 2HP | 98,119,186,... | 99,120,187,... | ∅ | ✅ |
-| S2 | 1HP | 3HP | 98,119,186,... | 100,121,188,... | ∅ | ✅ |
-| S3 | 2HP | 3HP | 99,120,187,... | 100,121,188,... | ∅ | ✅ |
-| S4 | 2HP | 1HP | 99,120,187,... | 98,119,186,... | ∅ | ✅ |
-| S5 | 3HP | 1HP | 100,121,188,... | 98,119,186,... | ∅ | ✅ |
-| S6 | 3HP | 2HP | 100,121,188,... | 99,120,187,... | ∅ | ✅ |
-
----
-
-## 执行许可
-
-**当前状态: ✅ 允许执行实验**
-
-**条件:** 需先下载 CWRU 数据到 `data/raw/` 目录
-
-**下一步:** `python scripts/01_download_data.py`
-
----
-
-## 尚存 WARNING
-
-| 项目 | 说明 | 影响 |
-|------|------|------|
-| CWRU 下载 | 需手动下载或验证 URL | 低 |
-| 文件完整性 | 无 checksum 验证 | 低 |
-| 结果记录 | 需在训练时自动保存 | 中 |
+该命令当前只形成 S1 WDCNN baseline 闭环；它不会自动代表 AdaBN、S2-S6 或论文全部结果。

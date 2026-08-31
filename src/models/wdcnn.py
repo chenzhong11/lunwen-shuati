@@ -1,8 +1,9 @@
 """
 WDCNN (Wide Deep Convolutional Neural Network) 模型实现
 
-本模块实现了论文 "A New Deep Transfer Learning Network for Bearing Fault Diagnosis"
-中提出的 WDCNN 架构，用于轴承故障诊断等 PHM 任务。
+本模块实现了论文 "A New Deep Learning Model for Fault Diagnosis with Good
+Anti-Noise and Domain Adaptation Ability on Raw Vibration Signals" 中的 WDCNN
+架构，用于轴承故障诊断等 PHM 任务。
 
 参考论文 Table 2 的网络结构配置。
 """
