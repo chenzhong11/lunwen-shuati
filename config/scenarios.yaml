@@ -1,0 +1,59 @@
+# ============================================================
+# 跨负载实验场景定义
+# ============================================================
+# 来源：论文 Table 3 (Section 4.4.1)
+
+scenarios:
+  S1:
+    name: "1HP_to_2HP"
+    source: "A"
+    target: "B"
+    source_load: 1
+    target_load: 2
+    description: "Train on 1HP, Test on 2HP"
+
+  S2:
+    name: "1HP_to_3HP"
+    source: "A"
+    target: "C"
+    source_load: 1
+    target_load: 3
+    description: "Train on 1HP, Test on 3HP"
+
+  S3:
+    name: "2HP_to_3HP"
+    source: "B"
+    target: "C"
+    source_load: 2
+    target_load: 3
+    description: "Train on 2HP, Test on 3HP"
+
+  S4:
+    name: "2HP_to_1HP"
+    source: "B"
+    target: "A"
+    source_load: 2
+    target_load: 1
+    description: "Train on 2HP, Test on 1HP"
+
+  S5:
+    name: "3HP_to_1HP"
+    source: "C"
+    target: "A"
+    source_load: 3
+    target_load: 1
+    description: "Train on 3HP, Test on 1HP"
+
+  S6:
+    name: "3HP_to_2HP"
+    source: "C"
+    target: "B"
+    source_load: 3
+    target_load: 2
+    description: "Train on 3HP, Test on 2HP"
+
+# 论文报告结果（待从 Figure 9 读取具体值）
+paper_results:
+  average:
+    wdcnn: 0.900
+    wdcnn_adabn: 0.959

@@ -1,0 +1,122 @@
+# ============================================================
+# WDCNN 复现配置
+# ============================================================
+# 所有参数标注证据等级：
+#   [Paper-Explicit]  论文明确说明
+#   [Paper-Inferred]  论文间接推断
+#   [Assumed]         复现假设（论文未说明）
+#   [CWRU-Standard]   CWRU 数据集标准配置
+
+# ----- 论文信息 -----
+paper:
+  title: "A New Deep Learning Model for Fault Diagnosis with Good Anti-Noise and Domain Adaptation Ability on Raw Vibration Signals"
+  authors: ["Wei Zhang", "Gaoliang Peng", "Chuanhao Li", "Yuanhang Chen", "Zhujun Zhang"]
+  journal: "Sensors (MDPI)"
+  year: 2017
+  doi: "10.3390/s17020425"
+  pmcid: "PMC5336047"
+  reference_section: "Section 4.4.1, Table 3, Figure 9"
+
+# ----- 数据配置 -----
+data:
+  dataset: "CWRU"                          # [Paper-Explicit]
+  source_url: "https://engineering.case.edu/bearingdatacenter"  # [CWRU-Standard]
+  sampling_rate: 12000                     # [Paper-Explicit] Section 4.1
+  sample_length: 2048                      # [Paper-Explicit] Section 4.1
+  channel: "DE"                            # [Paper-Explicit] Drive End accelerometer
+  num_classes: 10                          # [Paper-Explicit] Section 4.1
+  fault_types:                             # [Paper-Explicit] Table 1
+    - {id: 0, name: "Normal",              type: "Normal",  diameter: 0,     file: "97.mat"}
+    - {id: 1, name: "Ball_007",            type: "Ball",    diameter: 0.007, file: "118.mat"}
+    - {id: 2, name: "Ball_014",            type: "Ball",    diameter: 0.014, file: "185.mat"}
+    - {id: 3, name: "Ball_021",            type: "Ball",    diameter: 0.021, file: "222.mat"}
+    - {id: 4, name: "InnerRace_007",       type: "IR",      diameter: 0.007, file: "105.mat"}
+    - {id: 5, name: "InnerRace_014",       type: "IR",      diameter: 0.014, file: "169.mat"}
+    - {id: 6, name: "InnerRace_021",       type: "IR",      diameter: 0.021, file: "209.mat"}
+    - {id: 7, name: "OuterRace_007",       type: "OR",      diameter: 0.007, file: "130.mat", position: "6oclock"}
+    - {id: 8, name: "OuterRace_014",       type: "OR",      diameter: 0.014, file: "197.mat", position: "6oclock"}
+    - {id: 9, name: "OuterRace_021",       type: "OR",      diameter: 0.021, file: "234.mat", position: "6oclock"}
+  normalization: "z-score"                 # [Assumed] 零均值单位方差
+  train_overlap: 0.5                       # [Assumed] 50% overlap (shift=1024)
+  test_overlap: 0.0                        # [Paper-Explicit] 测试集无重叠
+
+# ----- 数据集划分 -----
+datasets:
+  A:                                       # [Paper-Explicit] Table 1
+    load_hp: 1
+    train_samples_per_class: 660
+    test_samples_per_class: 25
+    total_train: 6600
+    total_test: 250
+  B:
+    load_hp: 2
+    train_samples_per_class: 660
+    test_samples_per_class: 25
+    total_train: 6600
+    total_test: 250
+  C:
+    load_hp: 3
+    train_samples_per_class: 660
+    test_samples_per_class: 25
+    total_train: 6600
+    total_test: 250
+  D:                                       # 混合负载（附加实验）
+    load_hp: [1, 2, 3]
+    train_samples_per_class: 1980
+    test_samples_per_class: 75
+    total_train: 19800
+    total_test: 750
+
+# ----- 模型架构 (Table 2) -----
+model:
+  name: "WDCNN"                            # [Paper-Explicit]
+  input_length: 2048                       # [Paper-Explicit]
+  conv_layers:                             # [Paper-Explicit] Table 2
+    - {name: "conv1", kernel_size: 64, stride: 16, out_channels: 16, padding: "same"}
+    - {name: "pool1", kernel_size: 2, stride: 2, type: "max"}
+    - {name: "conv2", kernel_size: 3, stride: 1, out_channels: 32, padding: "same"}
+    - {name: "pool2", kernel_size: 2, stride: 2, type: "max"}
+    - {name: "conv3", kernel_size: 3, stride: 1, out_channels: 64, padding: "same"}
+    - {name: "pool3", kernel_size: 2, stride: 2, type: "max"}
+    - {name: "conv4", kernel_size: 3, stride: 1, out_channels: 64, padding: "same"}
+    - {name: "pool4", kernel_size: 2, stride: 2, type: "max"}
+    - {name: "conv5", kernel_size: 3, stride: 1, out_channels: 64, padding: "valid"}
+    - {name: "pool5", kernel_size: 2, stride: 2, type: "max"}
+  fc_layers:                               # [Paper-Explicit] Table 2
+    - {name: "fc1", out_features: 100}
+    - {name: "output", out_features: 10}
+  activation: "ReLU"                       # [Paper-Explicit]
+  use_batch_norm: true                     # [Paper-Explicit]
+  use_dropout: false                       # [Paper-Explicit] BN provides regularization
+
+# ----- 训练参数 -----
+training:
+  optimizer: "Adam"                        # [Paper-Explicit] Section 4.2.2
+  learning_rate: 0.001                     # [Assumed] Adam default
+  batch_size: 64                           # [Assumed]
+  epochs: 100                              # [Assumed]
+  weight_init: "kaiming_normal"            # [Assumed] He initialization for ReLU
+  loss: "CrossEntropyLoss"                 # [Paper-Explicit] classification task
+  device: "auto"                           # [Assumed] auto-detect GPU/CPU
+  num_workers: 4                           # [Assumed]
+
+# ----- AdaBN 配置 -----
+adabn:
+  enabled: true                            # [Paper-Explicit] Algorithm 1
+  compute_stats_on: "all_target_samples"   # [Paper-Explicit] Algorithm 1
+  update_running_stats: true               # [Paper-Explicit] replace running_mean/var
+  freeze_affine_params: true               # [Paper-Explicit] gamma, beta from source
+
+# ----- 可重复性 -----
+reproducibility:
+  random_seed: 42                          # [Assumed]
+  deterministic: true                      # [Assumed]
+  benchmark: false                         # [Assumed] disable for reproducibility
+
+# ----- 结果记录 -----
+logging:
+  log_dir: "experiments/logs"
+  save_model: true
+  save_predictions: true
+  save_confusion_matrix: true
+  save_metadata: true

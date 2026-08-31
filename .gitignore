@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Data
+data/
+data/raw/*.mat
+data/processed/*.npz
+
+# Codex local working files
+_codex_workspace/
+
+# Experiments
+experiments/results/
+experiments/logs/
+experiments/figures/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
