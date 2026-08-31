@@ -2,7 +2,7 @@
 WDCNN 模型验证脚本
 
 使用方法:
-    D:/Anaconda3/python.exe E:/projects/wdcnn-phm-reproduction/src/models/verify_model.py
+    D:/Anaconda3/python.exe E:/硕士学习记录/研零/论文刷题/paper/wdcnn-phm-reproduction/src/models/verify_model.py
 
 验证内容:
 1. 模型能否正常实例化

@@ -2,7 +2,7 @@
 
 ## 已创建的文件
 
-在 `E:\projects\wdcnn-phm-reproduction\src\data\` 目录下成功创建了以下文件：
+在 `E:\硕士学习记录\研零\论文刷题\paper\wdcnn-phm-reproduction\src\data\` 目录下成功创建了以下文件：
 
 ### 1. `base_loader.py` - 抽象基类
 - **类**: `BaseDataLoader(ABC)`
@@ -69,13 +69,9 @@
 3. **`docs/DATA_MODULE_GUIDE.md`**: 使用指南文档
 4. **`config/data_config.yaml`**: 配置文件示例
 
-## 测试结果
+## 当前测试结果
 
-所有模块已通过测试：
-- ✅ 预处理模块功能正常
-- ✅ 数据集创建正常
-- ✅ 数据泄漏检查正常
-- ✅ 跨负载场景创建正常
+基础模块测试已通过；当前真实 CWRU 场景测试因 `data/raw/` 没有 `.mat` 文件而为 SKIP，不能表述为跨负载实验已完成。最新 pytest 结果为 `10 passed, 1 skipped`。
 
 ## 使用示例
 
@@ -111,3 +107,4 @@ report = checker.generate_report()
 2. **数据泄漏**: 在跨负载场景中务必检查数据泄漏
 3. **归一化**: 测试集应使用训练集的归一化参数
 4. **内存使用**: 大数据集建议使用生成器或分批加载
+

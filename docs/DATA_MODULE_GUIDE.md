@@ -197,6 +197,6 @@ config = {
 运行测试脚本验证模块功能：
 
 ```bash
-cd E:\projects\wdcnn-phm-reproduction
+cd E:\硕士学习记录\研零\论文刷题\paper\wdcnn-phm-reproduction
 python test_data_module.py
 ```
