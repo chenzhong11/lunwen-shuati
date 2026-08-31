@@ -39,7 +39,7 @@
   → 1D raw WDCNN
 ```
 
-`03_data/processed/*.npz` 中保留的 1024 样例属于历史/通用数据模块示例，不是正式 Phase 1 输入，也不会上传到 GitHub。`02_code/config/data_config.yaml`、`01_notes/DATA_MODULE_GUIDE.md` 和 `02_code/examples/data_module_example.py` 中的 1024 同样已标记为 legacy/teaching only。
+`03_data/processed/*.npz` 中保留的 1024 样例属于历史/通用数据模块示例，不是正式 Phase 1 输入，也不会上传到 GitHub。`02_code/config/data_config.yaml`、`01_notes/data_module_guide.md` 和 `02_code/examples/data_module_example.py` 中的 1024 同样已标记为 legacy/teaching only。
 
 ## 当前可运行命令
 
@@ -104,4 +104,4 @@ D:/Anaconda3/python.exe 02_code/scripts/03_run_scenario.py --scenario S1 --metho
 - `01_notes/preflight_check.md`
 - `01_notes/reproduction_progress.md`
 - `01_notes/repository_consistency_audit.md`
-- `01_notes/REPOSITORY_SYNC.md`
+- `01_notes/repository_sync.md`

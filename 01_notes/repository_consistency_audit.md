@@ -74,7 +74,7 @@ D:/Anaconda3/python.exe 02_code/scripts/03_run_scenario.py --scenario S1 --metho
 | `02_code/scripts/03_run_scenario.py`、`04_run_all_scenarios.py` | 2048 | 正式场景入口/协议检查 | 否 | 保留并显式传入 |
 | `02_code/src/models/wdcnn.py` | 2048 | 正式模型默认输入 | 否 | 保留 |
 | `02_code/config/data_config.yaml` | 1024 | legacy/generic 数据模块配置 | 原表述会冲突 | 已标注，不属于 Phase 1 |
-| `01_notes/DATA_MODULE_GUIDE.md` | 1024 | legacy/teaching API 示例 | 原表述会冲突 | 已标注，不属于 Phase 1 |
+| `01_notes/data_module_guide.md` | 1024 | legacy/teaching API 示例 | 原表述会冲突 | 已标注，不属于 Phase 1 |
 | `02_code/examples/data_module_example.py` | 1024 | synthetic generic example | 原表述会冲突 | 已标注，不属于 Phase 1 |
 | `03_data/processed/*.npz` | 1024 | 历史本地样例 | 不属于正式协议 | 保留，不上传、不删除 |
 

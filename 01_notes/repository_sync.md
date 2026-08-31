@@ -25,3 +25,9 @@ GitHub 仓库：<https://github.com/chenzhong11/lunwen-shuati>
 5. 使用清晰的阶段性提交信息推送到 `main`。
 
 Notion 用于保存项目上下文、决策理由和知识沉淀；GitHub 用于保存代码、正式文件、版本历史和可复现证据。两者通过项目名称、报告日期和提交记录相互对应。
+
+## 文件命名规则
+
+- 面向使用者的正式 Markdown 统一使用英文小写 `lower_snake_case.md`。
+- 阶段学习材料使用 `dayN_topic[_version].md`，例如 `day4_cnn_from_cwt.md`。
+- 临时脚本、中间文件和调试记录只放在 `04_experiments/_codex_workspace/` 或项目外归档目录，不与正式资料混放。

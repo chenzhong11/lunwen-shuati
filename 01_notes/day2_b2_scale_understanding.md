@@ -1,4 +1,4 @@
-# Day2_B2_scale_understanding.md
+# Day 2 B2：Scale 理解
 
 ## 一、实验目的
 
