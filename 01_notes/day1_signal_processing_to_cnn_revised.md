@@ -873,7 +873,7 @@ CNN：从 CWT 图像中学习故障模式
 ## Day 1 实验文件
 
 - **修订版材料**: paper/01_notes/day1_signal_processing_to_cnn_revised.md
-- **原始材料**: paper/01_notes/day01_cwt_bridge.md
+- **版本说明**: 本修订版已整合并替代早期 Day 1 材料
 - **实验代码**: 需要在 PyCharm 中运行
 - **实验结果**: paper/04_experiments/
 

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Day 3: CWT 系数到 CNN 单通道图像的完整流水线。
+"""Day 3: CWT 系数到 CNN 单通道图像的底层流水线函数。
 
 本脚本只使用 Day 1 已生成的模拟轴承冲击信号，不读取 CWRU 数据，也不依赖
 PyTorch。正式模型输入使用无坐标轴、无标题、无颜色条的 8 位灰度 PNG；
-Matplotlib 生成的伪彩色图仅用于学习和检查。
+Matplotlib 生成的伪彩色图仅用于学习和检查。本文件作为 Day 3 V1.1
+教学实验复用的函数模块保留；旧版独立输出已移入项目外归档。
 """
 
 from __future__ import annotations
