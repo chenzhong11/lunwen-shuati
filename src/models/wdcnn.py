@@ -6,6 +6,8 @@ Anti-Noise and Domain Adaptation Ability on Raw Vibration Signals" 中的 WDCNN
 架构，用于轴承故障诊断等 PHM 任务。
 
 参考论文 Table 2 的网络结构配置。
+论文来源：Zhang et al. (2017), Sensors, 17(2), 425，
+DOI: 10.3390/s17020425。
 """
 
 from typing import List, Tuple, Optional
