@@ -1,0 +1,821 @@
+\n=== Page 1 ===\nResearchArticle
+Deep Learning Enabled Fault Diagnosis Using Time-Frequency
+Image Analysis of Rolling Element Bearings
+David Verstraete,1Andrés Ferrada,2Enrique López Droguett,1,3
+Viviana Meruane,3and Mohammad Modarres1
+1DepartmentofMechanicalEngineering,UniversityofMaryland,CollegePark,MD,USA
+2ComputerScienceDepartment,UniversityofChile,Santiago,Chile
+3MechanicalEngineeringDepartment,UniversityofChile,Santiago,Chile
+CorrespondenceshouldbeaddressedtoDavidVerstraete;dbverstr@terpmail.umd.edu
+Received 13 May 2017; Accepted 14 August 2017; Published 9 October 2017
+Ac
+ademicEditor:MatthewJ.Whelan
+Copyright © 2017 DavidVerstraeteetal. This is an open access article distributed under the Creative Commons Attribution
+License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properlycited.
+Traditionalfeatureextractionandselectionisalabor-intensiveprocessrequiringexpertknowledgeoftherelevantfeaturespertinent
+to the system. This knowledge is sometimes a luxury and could introduce added uncertainty and bias to the results. To address
+this problem a deep learning enabled featureless methodology is proposed to automatically learn the features of the data. Time-frequency representations of the raw data are used to generate image representations of the raw signal, which are then fed into
+a deep convolutional neural network (CNN) architecture for cla ssification and fault diagnosis. This methodology was applied
+to two public data sets of rolling element bearing vibration signals. Three time-frequency analysis methods (short-time Fourier
+transform, wavelet transform, and Hilbert-Huang transform) were explored for their representation effectiveness. The proposedCNNarchitectureachievesbetterresultswithlesslearnableparametersthansimilararchitecturesusedforfaultdetection,including
+caseswithexperimentalnoise.
+1. Introduction
+Withtheproliferationofinexpensivesensingtechnologyand
+theadvances inprognosticsandhealthmanagement(PHM)research, customers are no longer requiring that their new
+assetinvestmentbehighlyreliable;insteadtheyarerequiring
+that their assets possess the capability to diagnose faultsand provide alerts when components need to be replaced.These assets often have substantial sensor systems capableof generating millions of data points a minute. Handlingthis amount of data often involves careful construction andextractionoffeaturesfromthedatatoinputintoapredictivemodel. Feature extraction relies on some prior knowledgeo ft h ed a t a .C h o o s i n gw h i c hf e a t u r e st oi n c l u d eo re x c l u d e
+within the model is a continuous area of research without asetmethodologytofollow.
+Feature extraction and selection has opened a host of
+opportunitiesforfaultdiagnosis.Thetransformationofarawsignal into a feature vector allows the learning method to
+separate classes and identify previously unknown patternswithinthedata.Thishashadwiderangingeconomicbenefitsfortheownersoftheassetsandhasopenednewpossibilitiesof revenue by allowing original equipment manufacturers(OEMs)tocontractinmaintainabilityandavailabilityvalue.However,thestateofcurrentdiagnosticsinvolvesalaboriousprocess of creating a feature vector from the raw signal viafeatureextraction[1–3].Forexample,SeeraproposesaFuzzy-Min-Max Classification and Regression Tree (FMM-CART)model for diagnostics on Case Western’s bearing data [4].
+Traditional feature extraction was completed within both
+time and frequency domains. An important predictor-basedf e a t u r es e l e c t i o nm e a s u r ew a su s e dt oe n h a n c et h eC A R Tmodel.multilayerperceptron(MLP)wasthenappliedtothefeaturesforpredictionaccuracies.
+Oncefeaturesareextracted,traditionallearningmethods
+are then applied to separate, classify, and predict faults from
+Hindawi
+Shock and Vibration
+Volume 2017, Article ID 5067651, 17 pages
+https://doi.org/10.1155/2017/5067651\n=== Page 2 ===\n2 ShockandVibration
+learned patterns present within the layers of the feature
+vector [5, 6]. These layers of features are constructed byhuman engineers; therefore, they are subject to uncertaintyand biases of the domain experts creating these vectors. Itis becoming more common that this process is performedon a set of massive multidimensional data. Having prior
+knowledge of the features and representations within such a
+dataset,relevanttothepatternsofinterest,isachallengeandisoftenonlyonelayerdeep.
+It is in this context that deep learning comes to play.
+Indeed, deep learning encompasses a set of representationlearning methods with multiple layers. The primary benefitis the ability of the deep learning method to learn nonlin-ear representations of the raw signal to a higher level ofabstractionandcomplexityisolatedfromthetouchofhumanengineers directing the learning [7]. For example, to handlethe complexity of image classification, convolutional neuralnetworks(ConvNetsorCNNs)arethedominantmethod[8–13].Infact,theyaresodominanttodaythattheyrivalhumanaccuraciesforthesametasks[14,15].
+This is important from an engineering context because
+covariates often do not have a linear effect on the outcomeof the fault diagnosis. Additionally, there are situationswhereacovariateisnotdirectlymeasuredconfoundingwhatcould be a direct effect on the asset. The ability of deeplearningbasedmethodstoautomaticallyconstructnonlinearrepresentations given these situations is of great value to theengineeringandfaultdiagnosiscommunities.
+Since 2015, deep learning methodologies have been
+applied,withsuccess, todiagnosticsorclassificationtasksof
+rolling element signals [2, 16–26]. Wang et al. [2] proposed
+the use of wavelet scalogram images as an input into a CNNtodetectfaultswithinasetofvibrationdata.Aseriesof32 ×
+32 images is used. Lee et al. [20] explored a corrupted raws i g n a la n dt h ee ff e c t so fn o i s eo nt h et r a i n i n go faC N N .While not explicitly stated, it appears that minimal dataconditioningbymeansofashort-timeFouriertransformwascompleted and either images or a vector of these outputs,independentoftime,wasusedastheinputlayertotheCNN.Guo et al. [17] used Case Western’s bearing data set [4] andan adaptive deep CNN to accomplish fault diagnosis andseverity. Abdeljaber et al. [19] used a CNN for structuraldamage detection on a grandstand simulator. Janssens et al.[21] incorporated shallow CNNs with the amplitudes of thediscreteFouriertransformvectoroftherawsignalasaninput.Pooling,orsubsampling,layerswerenotused.Chenetal.[16]used traditional feature construction as a vector input to aCNN architecture consisting of one convolutional layer andone pooling layer for gearbox vibration data. Although notdealingwithrollingelements,Zhang[22]usedadeeplearn-ing multiobjective deep belief network ensemble methodto estimate the remaining useful life of NASA’s C-MAPSSdataset.Liaoetal.[23]usedrestrictedBoltzmannmachines(RBMs) as a feature extraction method, otherwise known
+as transfer learning. Feature selection was completed from
+the RBM output, followed by a health assessment via self-organizingmaps(SOMs).theremainingusefullife(RUL)wasthen estimated on run-to-failure data sets. Babu [24] usedimages of two PHM competition data sets (C-MAPSS andPHM 2008) as an input to a CNN architecture. While thesedata sets did not involve rolling elements, the feature mapsweretime-based,thereforeallowingthepiecewiseremainingusefullifeestimation.Guoetal.[18]incorporatedtraditionalfeature construction and extraction techniques to feed astacked autoencoder (SAE) deep neural network. SAEs do
+not utilize convolutionaland pooling layers. Zhou et al. [25]
+usedfastFouriertransformontheCaseWesternbearingdataset for a vector input into a deep neural network (DNN)using 3, 4, and 5 hidden layers. DNNs do not incorporateconvolutional and pooling layers, only hidden layers. Liu etal. [26] used spectrograms as input vectors into sparse andstacked autoencoders with two hidden layers. Liu’s resultsindicate there was difficulty classifying outer race faultsversus the baseline. Previous deep learning based modelsa n da p p l i c a t i o n st of a u l td i a g n o s t i c sa r eu s u a l l yl i m i t e db ytheir sensitivity to experimental noise or their reliance ontraditionalfeatureextraction.
+I nt h i sp a p e r ,w ep r o p o s ea ni m p r o v e dC N Nb a s e d
+model architecture for time-frequency image analysis forfault diagnosis of rolling element bearings. Its main elementconsists of a double layer CNN, that is, two consecutiveconvolutional layers without a pooling layer between them.Furthermore,twolineartime-frequencytransformationsareused as image input to the CNN architecture: short-timeFouriertransformspectrogramandwavelettransform(WT)scalogram. One nonlinear nonparametric time-frequencytransformationisalsoexamined:Hilbert-Huangtransforma-tion (HHT). HHT is chosen to compliment the traditionaltime-frequency analysis of STFT and WT due to its benefit
+of not requiring the construction of a basis to match the
+raw signal components. These three methods were chosenb e c a u s et h e yg i v es u i t a b l eo u t p u t sf o rt h ed i s c o v e r yo fcomplex and high-dimensional representations without theneed for additional feature extraction. Additionally, HHTimageshavenotbeenusedasabasisforfaultdiagnostics.
+Beyond the CNN architecture and three time-frequency
+analysis methods, this paper also examines the loss ofinformation due to the scaling of images from 96 ×96
+to 32×32 pixels. Image size has significant impact on
+the CNN’s quantity of learnable parameters. Training timeis less if the image size can be reduced, but classificationaccuracyisnegativelyimpacted.Themethodologyisappliedtotwopublicdatasets:(1)theMachineryFailurePreventionTechnology (MFPT) society rolling element vibrationaldataset and (2) Case Western Reserve University’s Bearing dataset[4].
+The rest of this paper is organized as follows: Section 2
+provides an overview of deep learning and CNNs. Section 3givesabriefoverviewofthetime-frequencydomainanalysisincorporatedintothe image structures forthe deep learningalgorithm to train. Section 4 outlines the proposed CNNarchitecture constructed to accomplish the diagnostic taskof fault detection. Sections 5 and 6 apply the methodol-
+ogy to two experimental data sets. Comparisons of the
+proposed CNN architecture against MLP, linear supportvectormachine(SVM),andGaussianSVMforboththerawdata and principal component mapping data are presented.Additionally, comparisons with Wang et al. [2] proposed\n=== Page 3 ===\nShockandVibration 3
+Input layerFeature mapsFeature maps
+Hidden layerOutput layer
+Convolutional layer Pooling layer Fully connected layer
+Figure1:GenericCNNarchitecture.
+CNN architecture is presented. Section 7 examines the data
+set with traditional feature learning. Section 8 explores theadditionofGaussiannoisetothesignals.Section9concludeswithdiscussionoftheresults.
+2. Deep Learning and CNN Background
+Deep learning is representation learning; however, not allrepresentation learning is deep learning. The most commonformofdeeplearningissupervisedlearning.Thatis,thedatai sl a b e l e dp r i o rt oi n p u ti n t ot h ea l g o r i t h m .C l a s s i fi c a t i o nor regression can be run against these labels, and thuspredictionscanbemadefromunlabeledinputs.
+Withinthecomputervisioncommunity,thereisoneclear
+favoritetypeofdeep,feedforwardnetworkthatoutperformedothersingeneralizingandtrainingnetworksconsistingoffullconnectivity across adjacent layers: the convolutional neuralnetwork (CNN). A CNN’s architecture is constructed as aseries of stages. Each stage has a different role. Each role iscompletedautomaticallywithinthealgorithm.Eacharchitec-t u r ew i t h i nt h eC N Nc o n s t r u c tc o n s i s t so ff o u rp r o p e r t i e s :multiple layers, pooling/subsampling, shared weights, andlocalconnections.
+A ss h o w ni nF i g u r e1 ,t h efi r s ts t a g eo faC N Ni sm a d e
+of two types of layers: convolutional layers which organizethe units in feature maps and pooling layers which mergesimilar features into one feature. Within the convolutionallayer’sfeaturemap,eachunitisconnectedtoapreviouslayer’sfeature maps through a filter bank. This filter consists of aset of weights and a corresponding local weighted sum. The
+weightedsumpassedthroughanonlinearfunctionsuchasa
+rectified linear unit (ReLU). This is shown in (1). ReLU is ahalf-waverectifier, 𝑓(𝑥) =max(𝑥,0),a ndislik etheSo ft pl us
+activation function; that is, Softplus (𝑥) =ln(1 + 𝑒
+𝑥).R e L U
+activationtrainsfasterthanthepreviouslyusedsigmoid/tanhfunctions[7]:
+X(𝑚)
+𝑘=ReLU(𝐶
+∑
+𝑐=1W(𝑐,𝑚)
+𝑘∗X(𝑐)
+𝑘−1+B(𝑚)𝑘), (1)
+where∗representstheconvolutionaloperator; X(𝑐)
+𝑘−1isinput
+ofconvolutionalchannel 𝑐;W(𝑐,𝑚)𝑘isfilterweightmatrix; B(𝑚)𝑘
+isbiasweightmatrix;ReLUisrectifiedlinearunit.Animportantaspectoftheconvolutionallayersforimage
+analysis is that units within the same feature map share the
+same filter bank. However, to handle the possibility thataf e a t u r em a p ’ sl o c a t i o ni sn o tt h es a m ef o re v e r yi m a g e ,differentfeaturemapsusedifferentfilterbanks[7].Forimagerepresentationsofvibrationdatathisisimportant.Asfeaturesareextractedtocharacterizeagiventypeoffaultrepresentedon the image, it may be in different locations on subsequentimages. It is worth noting that feature construction happensautomaticallywithintheconvolutionallayer,independentof
+theengineerconstructingorselectingthem,whichgivesrise
+to the term featureless learning. To be consistent with the
+terminology of the fault diagnosis community, one couldliken the convolutional layer to a feature construction, orextraction,layer.Ifaconvolutionallayerissimilarinrespecttofeatureconstruction,thepoolinglayerinaCNNcouldberelatedtoafeatureselectionlayer.
+The second stage of a CNN consists of a pooling layer
+to merge similar features into one. This pooling, or subsam-pling, effectively reduces the dimensions of the representa-tion.Mathematically,thesubsamplingfunction 𝑓is[27]
+X
+(𝑚)
+𝑘=𝑓(𝛽(𝑚)
+𝑘down(X(𝑚−1)
+𝑘)+𝑏(𝑚)
+𝑘),(2)
+wheredown( ∙)r ep r esen tsthes ubsa m p lin gfunctio n. 𝛽(𝑚)
+𝑘is
+multiplicativebias. 𝑏(𝑚)
+𝑘isadditivebias.
+After multiple stacks of these layers are completed, the
+output can be fed into the final stage of the CNN, amultilayerperceptron(MLP)fullyconnectedlayer.AnMLP
+isaclassificationfeedforwardneuralnetwork.Theoutputsof
+the final pooling layer are used as an input to map to labelsprovided for the data. Therefore, the analysis and predictionof vibration images are a series of representations of theraw signal. For example, the raw signal can be representedin a sinusoidal form via STFT. STFT is then representedgraphically via a spectrogram, and finally a CNN learns andclassifiesthespectrogramimagefeaturesandrepresentationsthat best predict a classification based on a label. Figure 2outlines how deep learning enabled feature learning differsfromtraditionalfeaturelearning.
+Traditional feature learning involves a process of con-
+structing features from the existing signal, feature searching\n=== Page 4 ===\n4 ShockandVibration
+Feature 
+constructionFeature selection 
+(optional)Diagnostic model
+Raw signalTraditional feature learning
+Mean
+Standard deviation
+Kurtosis
+Skewness
+Crest
+RMSEvaluation metrics
+Filter methodsOptimum
+Heuristic
+Wrapper methodMultilayer perceptron
+Support vector machines
+Neural networks
+Decision trees
+Random forestsAccuracyConfusion matrix
+Precision
+Specificity
+F-measure
+Sensitivity
+Diagnostic model
+Raw signalDeep learning enabled feature learning
+Evaluation metrics
+STFT
+Wavelets
+HHTCNNAccuracy
+Precision
+Specificity
+F-measure
+SensitivityRepresentation 
+construction
+Spectrograms
+Scalograms
+HHT Plots
+Figure2:Processofrepresentationsfortime-frequencyanalysis.
+via optimum or heuristic methods, feature selection of
+relevantandimportantfeaturesviafilterorwrappermethods,
+andfeedingtheresultingselectedfeaturesintoaclassificationalgorithm. Deep learning enabled feature learning has theadvantage of not requiring a feature construction, search,andselectionsequence.Thisisdoneautomaticallywithintheframework of the CNN. The strength of a CNN in its imageanalysis capabilities. Therefore, an image representation ofthedataasaninputintotheframeworkisideal.Avectorinputof constructed features misses the intent and power of theCNN.GiventhattheCNNsearchesspatiallyforfeatures,thesequenceofthevectorinputcanaffecttheresults.Withinthispaper spectrograms,scalograms,andHHT plotsareusedastheimageinputtoleveragethestrengthsofaCNNasshowninFigure2.
+3. Time-Frequency Methods
+Definition and Discussion
+Time frequency represents a signal in both the time andfrequencydomainssimultaneously.Themostcommontime-frequencyrepresentationsarespectrogramsandscalograms.As p e c t r o g r a mi sav i s u a lr e p r e s e n t a t i o ni nt h et i m e -frequencydomainofasignalusingtheSTFT,andascalogramusestheWT.Themaindifferencewithbothtechniquesisthatspectrogramshaveafixedfrequencyresolutionthatdependson the windows size, whereas scalograms have a frequency-dependent frequency resolution. For low frequencies, a longwindowisusedtoobserveenoughoftheslowalternationsinthesignalandathigherfrequencyvaluesashorterwindowisused which results in a higher time resolution and a poorer
+frequency resolution. On the other hand, the HHT does
+not divide the signal at fixed frequency components, butthe frequency of the different components (IMFs) adapts tothe signal. Therefore, there is no reduction of the frequencyresolution by dividing the data into sections, which givesHHTahighertime-frequencyresolutionthanspectrogramsandscalograms.Inthispaper,weexaminetherepresentationeffectivenessofthefollowingthreemethods:STFT,WT,andHHT. These representations will be graphically representeda sa ni m a g ea n df e di n t ot h ep r o p o s e dC N Na r c h i t e c t u r ei nSection4.
+3.1. Spectrograms: Short-Time Fourier Transform (STFT).
+Spectrograms are a visual representation of the STFT wherethe𝑥-a n d𝑦-axis are time and frequency, respectively, and
+t h ec o l o rs c a l eo ft h ei m a g ei n d i c a t e st h ea m p l i t u d eo ft h efrequency. The basis for the STFT representation is a seriesof sinusoids. STFT is the most straightforward frequencydomainanalysis.However,itcannotadequatelymodeltime-variant and transient signal. Spectrograms add time to theanalysis of FFT allowing the localization of both time andfrequency. Figure 3 illustrates a spectrogram for the baselineconditionofarollingelementbearingvibrationalresponse.
+3.2.Scalograms:WaveletTransform. Scalogramsareagraph-
+ical image of the wavelet transform (WT). WTs are a linear
+time-frequency representation with a wavelet basis insteadof sinusoidal functions. Due to the addition of a scalev a ri a b l eal o n gw i thth eti m ev a ri a b l e ,th eWTi se ff e cti v ef o rnonstationaryandtransientsignals.\n=== Page 5 ===\nShockandVibration 5
+−120−100−80−60−40−20
+1 1.5 2 0.5
+Time ×10500.10.20.30.40.50.60.70.80.91Normalized frequency (kHz)
+Power/frequency (dB/rad/sample)
+Figure3:STFTspectrogramofbaselinerawsignal.
+×104
+×10−3
+0.511.522.533.544.5Frequency (kHz)
+0.511.52
+Magnitude
+0.02 0.04 0.06 0.08 0.1 0.12 0
+Time (s)
+Figure4:Wavelettransformscalogramofbaselinerawsignal.
+For a wavelet transform, WT𝑥(𝑏,𝑎),o fas i g n a lw h i c hi s
+energy limited 𝑥(𝑡) ∈ 𝐿2(𝑅);t h eb a s i sf o rt h et r a n s f o r mc a n
+besetas
+WT𝑥(𝑏,𝑎)=1
+√𝑎∫+∞
+−∞𝑥(𝑡)𝜓(𝑡−𝑏
+𝑎)𝑑𝑡, (3)
+where𝑎isscaleparameter; 𝑏istimeparameter; 𝜓isanalyzing
+wavelet.
+Figure 4 illustrates a scalogram with a Morlet wavelet
+basis for the baseline condition of a rolling element bearing
+vibrational response. There have been many studies onthe effectiveness of individual wavelets and their ability tomatch a signal. One could choose between the Gaussian,Morlet, Shannon, Meyer, Laplace, Hermit, or the MexicanH a tw a v e l e t si nb o t hs i m p l ea n dc o m p l e xf u n c t i o n s .T od a t ethereisnotadefinedmethodologyforidentifyingtheproperwavelettobeusedandthisremainsanopenquestionwithinSignal
+Empirical mode decomposition
+Instantaneous 
+amplitudesInstantaneous 
+frequenciesIntrinsic 
+mode 
+functions
+Hilbert 
+transformHilbert-
+Huang 
+transform
+Figure5:OverviewofHHTadaptedfromWang(2010).
+theresearchcommunity[28].Forthepurposesofthispaper,the Morlet wavelet, Ψ
+𝜎(𝑡), is chosen because of its similarity
+to the impulse component of symptomatic faults of manymechanicalsystems[29]andisdefinedas
+Ψ
+𝜎(𝑡)=𝑐𝜎𝜋−(1/4)𝑒−(1/2)𝑡2(𝑒𝑖𝜎𝑡−𝐾𝜎), (4)
+where𝑐is normalization constant. 𝐾𝜎is admissibility crite-
+rion.
+Wavelets have been extensively used for machinery fault
+diagnosis. For the sake of brevity, those interested can referto Peng and Chu [30] for a comprehensive review of thewavelet transform’s use within condition monitoring andfaultdiagnosis.
+3.3. Hilbert-Huang Transform. Feng et al. [28] refer to the
+time-frequency analysis method, Hilbert-Huang transform
+(HHT), as an adaptive nonparametric approach. STFT andWTarelimitedinthesensethattheyarearepresentationofthe raw signal on a predefined set of basis function. HHTdoes not make predefined assumptions on the basis of thedatabutemploystheempiricalmodedecomposition(EMD)todecomposethesignalintoasetofelementalsignalscalledintrinsic mode functions (IMFs). The HHT methodology isdepictedinFigure5.
+The HHT is useful for nonlinear and nonstationary
+time series analysis which involves two steps: EMD of thetime series signal and Hilbert spectrum construction. It is\n=== Page 6 ===\n6 ShockandVibration
+0.050.10.150.20.250.3
+0100020003000400050006000Instantaneous frequency
+51 0 1 5 2 0 0
+Time (seconds)
+Figure6:HHTimageofbaselinerawsignal.
+an iterative numerical algorithm which approximates and
+extracts IMFs from the signal. HHTs are particularly usefulforlocalizingthepropertiesofarbitrarysignals.FordetailsofthecompleteHHTalgorithm,thereaderisdirectedtowardsHuang [31].
+Figure6showsanHHTimageoftherawbaselinesignal
+used in Figures 3 and 4. It is not uncommon for the HHTinstantaneous frequencies to return negative values. Thisis because the HHT derives the instantaneous frequenciesfrom the local derivatives of the IMF phases. The phase isnotrestrictedtomonotonicallyincreasingandcanthereforedecreaseforatime.Thisresultsinanegativelocalderivative.ForfurtherinformationregardingthispropertyofHHT,thereaderisdirectedtoreadMeeson[32].
+The EMD portion of the HHT algorithm suffers from
+possible mode mixing. Intermittences in signal can causethis. Mode mixing within signals containing instantaneousfrequency trajectory crossings is inevitable. The results ofmode mixing can result in erratic or negative instantaneousfrequencies [33]. This means for such signals HHT doesnotoutperformtraditionaltime-frequencyanalysismethods
+suchasSTFT.
+4. Proposed CNN Architecture for Fault
+Classification Based on Vibration Signals
+Theprimaryelementoftheproposedarchitectureconsistsof
+a double layer CNN, that is, two consecutive convolutional
+layerswithoutapoolinglayerbetweenthem.Theabsenceofa
+poolinglayerreducesthelearnableparametersandincreasestheexpressivityofthefeaturesviaanadditionalnonlinearity.However, a pooling layer is inserted between two stackeddouble convolutional layers. This part of the architecturemakes up the automatic feature extraction process that isthenfollowedbyafullyconnectedlayertoaccomplishrollingelementfaultdetection.
+The first convolutional layer consists of 32 feature maps
+of 3×3 size, followed by second convolutional layer of 32
+feature maps of 3 ×3 size. After this double convolutional
+layer, there is a pooling layer of 32 feature maps of 2 ×2
+size. This makes up the first stage. The second stage consistsof two convolutional layers of 64 feature maps each, of 3×3 size, followed by subsampling layer of 64 feature maps
+of 2×2 size. The third stage consists of two convolutional
+layers of 128 feature maps each, of 3 ×3s i z e ,f o l l o w e db y
+subsampling layer of 128 feature maps of 2 ×2s i z e .Th e
+last two layers are fully connected layers of 100 features.
+Figure 7 depicts this architecture. The intent of two stacked
+convolutional layers before a pooling layer is to get theb e n e fi to fal a r g ef e a t u r es p a c ev i as m a l l e rf e a t u r e s .Th i sconvolutionallayerstackinghastwoadvantages:(1)reducingthe number of parameters the training stage must learn and(2) increasing the expressivity of the feature by adding anadditionalnonlinearity.
+Table 1 provides an overview of CNN architectures that
+have been used for fault diagnosis, where C’s are convo-lutional layers, P’s are pooling layers, and FCs are fullyconnected layers. The number preceding the C, P, and FCindicates the number of feature maps used. The dimensions[3×3]and[2×2]indicatethepixelsizeofthefeatures.
+Training the CNN involves the learning of all of the
+weights and biases present within the architectures. Theseweightsandbiasesarereferredtoaslearnableparameters.Thequantity of learnable parameters for a CNN architecture canradically improve or degrade the time to train of the model.Therefore, it is important to optimize the learnable param-eters by balancing training time versus prediction accuracy.Table 2 outlines the quantity of learnable parameters forthe proposed CNN architecture as well as a comparison toarchitectures1and2presentedinT able1.
+Beyond the learnable parameters, the CNN requires
+the specification and optimization of the hyperparameters:dropout and learning rate. Dropout is an essential propertyof CNNs. Dropout helps to prevent overfitting and reducetraining error and effectively thins the network (Srivastava,2015). The remaining connections are comprised of all theunitsthatsurvivethedropout.Forthisarchitecture,dropoutissetto0.5.Fortheotherhyperparameter,learningrate,theadaptedmomentestimation(ADAM)algorithmwasusedforoptimization.IthashadsuccessintheoptimizingthelearningrateforCNNsfasterthansimilaralgorithms.Insteadofhandpicking learning rates like similar algorithms, the ADAMlearningratescaleadaptsthroughdifferentlayers[34].
+Part of the reason for deep learning’s recent success has
+been the use of graphics processing unit (GPU) computing[7]. GPU computing was used for this paper to increase thespeed and decrease the training time. More specifically, theprocessing system used for the analysis is as follows: CPUCorei7-6700K4.2GHzwith32GBramandGPUTeslaK20.
+5. Case Study 1: Machinery Failure
+Prevention Technology
+ThisdatasetwasprovidedbytheMachineryFailurePreven-tionTechnology(MFPT)Society[35].AtestrigwithaNICEbearing gathered acceleration data for baseline conditionsat 270lbs of load and a sampling rate of 97,656Hz for sixseconds.Intotal,tenouter-racewayandseveninner-racewayfaultconditionsweretracked.Threeouterracefaultsincluded270lbs of load and a sampling rate of 97,656Hz for six\n=== Page 7 ===\nShockandVibration 7
+Convolution 
+(C)Max
+poolingC32 feature maps 
+(FMs)
+Fully 
+connected 
+(FC)C C Max
+poolingMax
+pooling100 100
+C CClassification
+96 × 96 image32FMs 64FMs 64FMs 128FMs 128FMs
+Figure7:ProposedCNNarchitecture.
+T able1:OverviewofCNNarchitecturesusedforfaultdiagnosis.
+Proposedmodel CNNarchitecture
+Architecture1[2]Input[32×32]−64C[3×3]−64P[2×2]−64C[4×4]−64P[2×2]−128C[3 ×
+3]−128P[2 ×2]−FC[512]
+Architecture2,Chenetal.[16] Input[32×32]-16C[3×3]-16P[2×2]-FC[10]
+ProposedarchitectureInput[32×32]-32C[3×3]-32C[3×3]-32P[2×2]-64C[3×3]-64C[3×3]-64P [2×
+2]-128C[3×3]-128C[3×3]-128P[2×2]-FC[100]-FC[100]
+ProposedarchitectureInput[96×96]-32C[3×3]-32C[3×3]-32P[2×2]-64C[3×3]-64C[3×3]-64P[2×
+2]-128C[3×3]-128C[3×3]-128P[2×2]-FC[100]-FC[100]
+Gu
+oetal.[17,18]Input[32×32]−5C[5×5]−5P[2×2]−10C[5×5]−10P[2×2]−10C[2×2]−10P[2×
+2]−FC[100 ]−FC[50]
+Abdeljaberetal.[19] Input[128]−64C[41]−64P[2]−32C[41]−32P[2]−FC[10−10]
+Table2:OverviewoflearnableparametersfortheCNNarchitectures.
+CNNmodel 32×32image 96×96image
+Architecture2 41,163 368,854
+ProposedCNN 501,836 2,140,236
+Architecture1 1,190,723 9,579,331
+seconds. Seven additional outer race faults were assessed at
+v a r y i n gl o a d s :2 5 ,5 0 ,1 0 0 ,1 5 0 ,2 0 0 ,2 5 0 ,a n d3 0 0l b s .Th esample rate for the faults was 48,828Hz for three seconds.Seven inner race faults were analyzed with varying loadso f0 ,5 0 ,1 0 0 ,1 5 0 ,2 0 0 ,2 5 0 ,a n d3 0 0l b s .Th es a m p l er a t ef o rt h ei n n e rr a c ef a u l t sw a s4 8 , 8 4 8H zf o rt h r e es e c o n d s .Spectrogram, scalogram, and HHT images were generated
+fromthisdatasetwiththefollowingclasses:normalbaseline
+(N),innerracefault(IR),andouterracefault(OR).Therawd a t ac o n s i s t e do ft h ef o l l o w i n gd a t ap o i n t s :Nw i t h1 , 7 5 7 , 8 0 8data points, IR with 1,025,388 data points, and OR with2,782,196 data points. The total images produced from thedata set are as follows: N with 3,423, IR with 1,981, and ORwith5,404.
+From MFPT, there was more data and information on
+the outer race fault conditions; therefore more images weregenerated. This was decided due to the similarities betweenthebaselineimagesandtheouterracefaultimagesasshowninTables5and7.ItisimportanttonotethatfunctionallytheCNNlooksateachpixel’sintensityvaluetolearnthefeatures.Therefore, based on size and quantity, the 96 ×96-pixel and
+32×32-pixel images result in 99,606,528 and 11,067,392 data
+points,respectively.
+Oncethedataimagesweregenerated,bilinearinterpola-
+tion[36]wasusedtoscaletheimagedowntotheappropriatesize for training the CNN model. From this image data a70/30 split was used for the training and test sets. These
+imagesareoutlinedinT ables3,4,and5.
+Within the MFPT image data set, a few things stand
+out. Although the scalogram images of the outer race faults
+versusthebaselinearesimilar,thescalogramimageshadthehighestpredictionaccuracyfromallthemodelingtechniquesemployedinTables6and7.TheinformationlossoftheHHTimages when reducing the resolution from 96 ×96 to 32×
+32pixelscouldberelevantbecauseofthegraphicaltechniqueusedtogeneratetheimages.
+Depending upon the modeling technique used, the pre-
+diction accuracies are higher or lower in Tables 6 and 7.The CNN modeling had a significant shift between 96 and32imageresolutions.Supportvectormachines(SVM)hada\n=== Page 8 ===\n8 ShockandVibration
+Table3:MFPTbaselineimages.
+Imagesize(pixels) Spectrogram Scalogram HHT
+32×32
+96×96
+Table4:MFPTinnerraceimages.
+Imagesize(pixels) Spectrogram Scalogram HHT
+32×32
+96×96
+Table5:MFPTouterraceimages.
+Imagesize(pixels) Spectrogram Scalogram HHT
+32×32
+96×96
+Table6:Predictionaccuraciesfor32 ×32-pixelimageinputs.
+Model Spectrogram Scalogram HHT
+MLPflat 70.3% 94.0% 49.2%
+LSVMflat 63.6% 91.8% 50.0%
+SVMflat 73.9% 92.7% 58.5%
+MLPPCA 62.3% 95.3% 56.7%
+LSVMPCA 48.8% 89.9% 45.8%
+SVMPCA 51.3% 92.5% 56.4%
+Architecture2 77.3% 92.4% 68.9%
+Architecture1 80.6% 99.8% 74.5%
+ProposedCNNarchitecture 81.4% 99.7% 75.7%\n=== Page 9 ===\nShockandVibration 9
+Table7:Predictionaccuraciesfor96 ×96-pixelimageinputs.
+Model Spectrogram Scalogram HHT
+MLPflat 80.1% 81.3% 56.8%
+LSVMflat 77.1% 91.9% 52.8%
+SVMflat 85.1% 93.3% 57.8%
+MLPPCA 81.5% 96.4% 69.2%
+LSVMPCA 74.1% 92.0% 51.4%
+SVMPCA 49.6% 70.0% 68.8%
+Architecture2 81.5% 97.0% 74.2%
+Architecture1 86.2% 99.9% 91.8%
+ProposedCNNarchitecture 91.7% 99.9% 95.5%
+T able8:MFPTpairedtwo-tailed 𝑡-test𝑝values.
+ImagetypeArchitecture1 Architecture1 Architecture2 Architecture2
+32×32 96×96 32×32 96×96
+Scalogram 0.080 0.344 0.049 0.108
+Spectrogram 0.011 0.037 0.058 0.001
+HHT 0.031 0.410 0.000 0.000
+difficult time predicting the faults for both the raw data (flat
+pixelintensities)andprincipalcomponentanalysis(PCA).
+Flat pixel data versus PCA of the pixel intensities varied
+across different modeling and image selection. ScalogramsoutperformedspectrogramsandHHT.However,theoptimalmodeling method using traditional techniques varied. Forboth the HHT and spectrogram images, SVM on the flatdatawasoptimal.Forscalograms,MLPonthePCAdatawasoptimal.
+Resolution loss from the reduction in image from 96 ×
+96to32×32influencedthefaultdiagnosisaccuracies.There
+wasaslightdropinthescalogramaccuraciesbetweenthetwoimages sizes except for SVM PCA modeling. Spectrogramssufferedalittlefromtheresolutiondrop;however,HHTwasmost affected. This is due to the image creation method.Scatter plots were used due to the point estimates of theinstantaneousfrequenciesandamplitudes.
+With regard to the CNN architectures, the proposed
+deeparchitectureoutperformedtheshallowone.TheshallowCNNarchitectureoutperformedthetraditionalclassificationmethodologies in the 96 ×96 image sizes except for spec-
+trograms. With a 32 ×32 image size, the shallow CNN out-
+performed the traditional methods except for the scalogramimages. The proposed CNN architecture performed betteroverallforthefourdifferentimagetechniquesandresolutionsizesexceptfor32 ×32scalograms.
+To measure the similarity between the results of the
+proposed CNN architecture versus architectures 1 and 2, themodel accuracies were compared with a paired two tail 𝑡-
+test. Table 8 outlines the 𝑝values with a null hypothesis of
+zerodifferencebetweentheaccuracies.A 𝑝valueabove0.05
+meanstheresultsarestatisticallythesame.A 𝑝valuelessthan
+0.05indicatesthemodelsarestatisticallydistinct.
+From the results in Table 8, one can see that the pro-
+p o s e da r c h i t e c t u r eh a st h ea d v a n t a g eo fo u t p e r f o r m i n go rachievingstatisticallyidenticalaccuracieswithlessthanhalfTable9:ConfusionmatricesforMFPT(a)96 ×96and(b)32 ×32
+scalogramsfortheproposedarchitecture.
+(a)
+NI R O R
+N 99.9% 0.0% 0.1%
+IR 0.0% 100% 0.0%
+OR 0.1% 0.0% 99.9%
+(b)
+NI R O R
+N 99.6% 0.1% 0.3%
+IR 0.0% 100% 0.0%
+OR 0.5% 0.0% 99.5%
+the amount of the learnable parameters. Table 9 outlinesthe confusion matrices results for the MFPT data set on 96×96 and 32 ×32 scalograms. The values are horizontally
+normalizedbyclass.Fromthis,thefollowing4metricswerederived:precision,sensitivity,specificity,and 𝐹-measure(see
+[37]fordetailsonthesemetrics).
+From the results shown in Tables 10–13, the precision,
+sensitivity,specificity,and 𝑓-measuresoftheproposedarchi-
+tecture outperform the other two CNN architectures whendealing with spectrograms and HHT images of both 96×96 and 32 ×32 sizes and are statistically identical to
+architecture 1 in case of scalograms. Precision assessmentis beneficial for diagnostics systems as it emphasizes falsepositives,thusevaluatingthemodel’sabilitytopredictactualf a u l t s .T om e a s u r et h ep r e c i s i o nf o rt h em o d e l ,o n em u s tlook at each class used in the model. For the MFPT data set,threeclasseswereused.Table10outlinestheaverageprecisionof the three classes for the three architectures. Sensitivity isanother effective measure for a diagnostic system’s ability to\n=== Page 10 ===\n10 ShockandVibration
+Table10:PrecisionforMFPTdataset.
+Model ProposedCNNarchitecture Architecture1 Architecture2
+Scalogram32 ×32 99.7% 99.8% 91.9%
+Scalogram96 ×96 99.9% 99.9% 95.8%
+Spectrogram32 ×32 82.0% 81.4% 78.8%
+Spectrogram96 ×96 91.3% 85.0% 81.7%
+HHT32×32 75.9% 74.6% 71.0%
+HHT96×96 92.9% 89.7% 74.1%
+Table11:SensitivityforMFPTdataset.
+Model ProposedCNNarchitecture Architecture1 Architecture2
+Scalogram32 ×32 99.7% 99.8% 89.6%
+Scalogram96 ×96 99.9% 100.0% 96.5%
+Spectrogram32 ×32 79.7% 77.8% 73.6%
+Spectrogram96 ×96 90.8% 82.1% 74.8%
+HHT32×32 76.2% 74.4% 68.0%
+HHT96×96 95.3% 92.3% 67.7%
+Table12:SpecificityforMFPTdataset.
+Model ProposedCNNarchitecture Architecture1 Architecture2
+Scalogram32 ×32 99.8% 99.9% 94.9%
+Scalogram96 ×96 95.7% 89.6% 85.3%
+Spectrogram32 ×32 89.8% 89.0% 87.0%
+Spectrogram96 ×96 100.0% 100.0% 97.6%
+HHT32×32 89.3% 88.3% 85.1%
+HHT96×96 97.9% 96.6% 83.5%
+Table 13:𝐹-measureforMFPTdataset.
+Model ProposedCNNarchitecture Architecture1 Architecture2
+Scalogram32 ×32 99.8% 99.8% 90.2%
+Scalogram96 ×96 99.9% 99.9% 96.1%
+Spectrogram32 ×32 80.3% 78.5% 74.2%
+Spectrogram96 ×96 90.9% 81.5% 73.9%
+HHT32×32 74.0% 71.9% 65.4%
+HHT96×96 93.9% 90.1% 62.6%
+classify actual faults. However, sensitivity emphasizes true
+negatives.Table11outlinestheaveragesensitivityofthethreeclasses. Specificity, or true negative rate, emphasizes falsepositives and is therefore effective for examining false alarmrates.Table12outlinestheaveragespecificity.The 𝑓-measure
+metricassessesthebalancebetweenprecisionandsensitivity.It does not take true negatives into account and illustratesa diagnostic system’s ability to accurately predict true faults.Table 13 outlines the average 𝑓-measureforthethreeclasses.
+Overall, the proposed architecture outperforms or is
+statisticallyidenticaltotheotherCNNarchitecturesfordiag-nosticclassificationtaskswithfarfewerlearnableparameters.As shown from the images, the MFPT data set appears likeit has more noise in the measurements from the baselineand outer race fault conditions. Under these conditions, theproposed architecture outperforms the other architecturesduetothetwoconvolutionallayerscreatingamoreexpressivenonlinear relationship from the images. Additionally, theproposedCNNcanbetterclassifyouterracefaultsversusthebaseline(normal)conditionevenwithverysimilarimages.
+6. Case Study 2: Case Western Reserve
+University Bearing Data Center
+Thesecondexperimentaldatasetusedinthispaperwaspro-vided by Case Western Reserve (CWR) University BearingData Center [4]. A two-horsepower reliance electric motorwasusedinexperimentsfortheacquisitionofaccelerometerdataonboththedriveendandfanendbearings,asshowninFigure 8. The bearings support the motor shaft. Single pointartificial faults were seeded in the bearing’s inner raceway(IR), outer raceway (OR), and rolling element (ball) (BF)\n=== Page 11 ===\nShockandVibration 11
+Figure8:Teststandforrollerbearingaccelerometerdata.
+Table 14: CWR baseline images.
+Imagesize Spectrogram Scalogram HHT
+32×32
+96×96
+withanelectrodischargemachining(EDM)operation.These
+faults ranged in diameter and location of the outer raceway.The data includes a motor load of 0 to 3 horsepower. The
+accelerometers were magnetically attached to the housing at
+the12o’clockposition.
+Forthepurposesofthispaper ,thespeedandloadonthe
+motorwerenotincludedasaclassifier.Additionally,thefaultsizesweregroupedtogetheraspredictingthesizeofthefaultwas beyond the scope of this paper. A 70/30 split was usedfor the training and test data. Spectrogram, scalogram, andHHT images were generated from this data. The raw dataconsisted of the following data points: N had 1,691,648, BFhad 1,441,792, IR had 1,440,768, and OR had 1,443,328 datap o i n t s .Th et o t a li m a g e sp r o d u c e df r o mt h ed a t as e ta r ea sfollows:N3,304,BF2,816,IR2,814,andOR2,819.FromCWR,therewasmorebalancedsetofdatabetweenthebaselineandfaults. Again, based on size and quantity, the 96 ×96and32
+×32 images result in 108,315,648 and 12,035,072 data points,
+respectively.ThisdataisusedbytheCNNtolearnthefeaturesofthedata.
+Deep learning algorithms hold promise to unlock previ-
+ously unforeseen relationship within explanatory variables;h o w e v e r ,i ti si m p o r t a n tt ok e e pt h i si nc o n t e x t .Th ev a l u eofthesealgorithmsisasmuchastheycanoutperformmuchsimplerfaultdiagnosistechniques.Ifenvelopeanalysis,MLP,SVM, or other traditional approaches can achieve the sameresults,thenthereisnovalueinspendingtheextratimeand
+resources to develop a deep learning algorithm to perform
+the analysis. Smith and Randall [38] outline this benchmarkstudy for the Case Western Reserve data set for envelopeanalysis.Appendix Bwithinthatpaperoutlinesthepotentialareaswithinthedatasetwhereamoresophisticatedanalysismust be used to diagnose certain faults. From these results,analysis including the ball faults within the fault diagnosis
+requires more sophisticated techniques. These include data
+sets 118 to 121, 185 to 188, 222, 224, and 225. These data setsa r eusedwi thinthispa per;th er ef o r e ,th er eispo t en tialval ueof the computational expense of the methodology proposedwithin this paper. These data sets incorporated the smallinjected faults at 0.007
+󸀠󸀠(data sets 118 to 121) to the larger
+injectedfaultsof0.028󸀠󸀠(datasets3001to3004).
+To be more explicit, the following data sets were used
+within the analysis: for the baseline, data sets 97 to 100; forthe inner race, 105 to 108, 169 to 172, 209 to 212, and 3001 to3004;fortheballfaults,118to121,185to188,222to225,and3005 to 3008; for the outer race faults, 130 to 133, 197 to 200,234to237 ,and144to147 .
+Bilinear interpolation [36] was used to scale the image
+down to the appropriate size for training the CNN model.A 70/30 split was used for the training and test sets. TheseimagesareoutlinedinT ables14,15,16,and17.
+The CWR image data set is different than the MFPT
+images. Even though the scalogram images of the ball faultsversus the inner race faults are similar, all four image setslookeasiertoclassify.Thescalogramimageshadthehighestprediction accuracy for modeling techniques employed inTables 18 and 19. The information loss of the HHT imageswhenreducingtheresolutionfrom96 ×96to32×32didnot
+affectthepredictionsasmuchastheMFPTdatahad,possiblyduetothelowernoiselevelsinthecaseoftheCWRdataset.
+Overall, spectrograms performed much better on the
+CWRdatasetthantheMFPTdataset.Flatpixeldataversus\n=== Page 12 ===\n12 ShockandVibration
+Table15:CWRinnerraceimages.
+Imagesize Spectrogram Scalogram HHT
+32×32
+96×96
+Table16:CWRballfaultimages.
+Imagesize Spectrogram Scalogram HHT
+32×32
+96×96
+Table17:CWRouterraceimages.
+Imagesize Spectrogram Scalogram HHT
+32×32
+96×96
+Table18:Predictionaccuraciesfor32 ×32imageinputs.
+Model Spectrogram Scalogram HHT
+MLPflat 92.7% 83.6% 59.6%
+LSVMflat 88.6% 80.8% 59.7%
+SVMflat 97.3% 89.3% 72.5%
+MLPPCA 89.4% 94.7% 76.0%
+LSVMPCA 77.9% 69.3% 59.7%
+SVMPCA 74.4% 90.0% 80.0%
+Architecture2 95.9% 92.6% 78.0%
+Architecture1 98.4% 99.2% 88.9%
+ProposedCNNarchitecture 98.1% 98.8% 86.5%\n=== Page 13 ===\nShockandVibration 13
+Table19:Predictionaccuraciesfor96 ×96imageinputs.
+Model Spectrogram Scalogram HHT
+MLPflat 96.7% 91.7% 68.0%
+LSVMflat 95.4% 84.4% 71.4%
+SVMflat 98.7% 92.1% 69.0%
+MLPPCA 96.3% 97.6% 85.0%
+LSVMPCA 87.1% 74.5% 65.4%
+SVMPCA 28.6% 84.4% 93.1%
+Architecture2 96.0% 96.0% 79.5%
+Architecture1 99.7% 99.8% 97.4%
+ProposedCNNarchitecture 99.5% 99.5% 97.6%
+Table20:CWRpairedtwo-tailed 𝑡-test𝑝values.
+ImagetypeArchitecture1 Architecture1 Architecture2 Architecture2
+32×32 96×96 32×32 96×96
+Scalogram 0.001 0.004 0.040 0.221
+Spectrogram 0.022 0.000 0.000 0.211
+HHT 0.005 0.784 0.000 0.000
+PCA of thepixel intensitiesvariedacross different modeling
+andimageselection.Spectrogramsoutperformedscalogramsexcept for SVM PCA. The optimal modeling method usingtraditional techniques varied. HHT’s optimum was SVMPCA,spectrogramswereSVMflat,andforscalograms,MLPPCAwasoptimal.
+LiketheMFPTresults,resolutionlossfromthereduction
+inimagefrom96 ×96to32×32influencedtheclassification
+accuracies.LiketheMFPTresults,therewasaslightdropinthescalogramaccuraciesbetweenthetwoimagessizesexceptforSVMPCAmodeling.Allmethodssufferedalittlefromtheresolutiondrop;however,HHTagainwasthemostaffected.
+The proposed architecture either outperformed or had
+statistically identical results with the other architectures.Table20outlinestheresultsofthe 𝑡-testvaluesfortheCWR
+data.ThesamehypothesistestastheMFPTdatasetwasusedforcomparison.
+Table 21 outlines the confusion matrix results for the
+CWR data set on 96 ×96 scalograms. The values are
+horizontally normalized by class. From this, the followingfourtablesofmetricswerederived.
+Fromtheresultsforaccuracy(Tables18and19)andpre-
+cision, sensitivity, specificity, and 𝐹-measure (Tables 22–25,
+resp.),onecansaythat,overall,theproposedarchitectureout-performsoriscompatiblewiththeotherCNNarchitecturesfor diagnostic classification tasks with far fewer learnableparameters. The benefits of the additional nonlinear expres-sivityprovidedbythedoublelayerapproachintheproposedarchitecture are still present, but the images show the CWRdatasethasanoverallbetterqualityofmeasurementwithfarlessnoise.
+7. Scalograms with Noise
+To evaluate the robustness of the CNN architectures, whiteGaussian noise was injected into the signals to evaluate howTable 21: Confusion matrix for CWR (a) 96 ×96 and (b) 32 ×32
+scalogramsfortheproposedarchitecture.
+(a)
+NB F I R O R
+N 98.4% 0.6% 0.0% 1.0%
+BF 0.0% 99.8% 0.0% 0.2%
+IR 0.0% 0.0% 100% 0.0%
+OR 0.2% 0.0% 0.0% 99.7%
+(b)
+NB FI R O R
+N 97.0% 2.0% 0.0% 1.0%
+BF 0.5% 99.1% 0.0% 0.3%
+IR 0.0% 0.0% 100% 0.0%
+OR 0.6% 0.6% 0.0% 98.8%
+the deep learning framework handles the noise within ascalogram. Five and ten percent (20 and 10 signal to noiseratio (SNR), resp.) Gaussian noise was used via the wgnfunction on the raw signal within Matlab. Additionally, the
+noisy images were randomly sampled without replacement
+to generate a 50:50 mix with images of the raw signal (zeronoise). The MFPT data set was chosen for this analysis as ithad a higher amount of noise in the baseline and outer raceimages.ExamplesofthoseimagescanbeseeninTable26.
+Fromtheseimagesthemodelsweretrainedandassessed.
+Those results can be found in Table 27. Both architectures1 and 2’s prediction accuracy suffered from the injection ofnoise. This is due in part to only having one convolutionallayer before pooling, therefore limiting the richness of thefeatures for the final predictions. The inclusion of an addi-tional convolutional layer within the proposed architecturepriortothepoolinglayerresultsinamuchricherfeatureand\n=== Page 14 ===\n14 ShockandVibration
+Table22:PrecisionforCWRdataset.
+ModelProposedCNN
+architectureArchitecture1 Architecture2
+Scalogram32 ×32 98.6% 99.2% 93.0%
+Scalogram96 ×96 99.4% 99.8% 96.7%
+Spectrogram32 ×32 98.0% 98.4% 95.8%
+Spectrogram96 ×96 99.5% 99.7% 96.7%
+HHT32×32 84.1% 85.4% 74.5%
+HHT96×96 97.0% 97.2% 82.5%
+Table23:SensitivityforCWRdataset.
+Model ProposedCNNarchitecture Architecture1 Architecture2
+Scalogram32 ×32 98.7% 99.2% 92.7%
+Scalogram96 ×96 99.5% 99.8% 96.2%
+Spectrogram32 ×32 98.0% 98.3% 95.8%
+Spectrogram96 ×96 99.5% 99.7% 96.2%
+HHT32×32 84.2% 85.5% 74.4%
+HHT96×96 97.1% 97.3% 82.0%
+Table24:SpecificityforCWRdataset.
+Model ProposedCNNarchitecture Architecture1 Architecture2
+Scalogram32 ×32 99.6% 99.7% 97.4%
+Scalogram96 ×96 99.8% 99.9% 98.7%
+Spectrogram32 ×32 99.3% 99.4% 98.6%
+Spectrogram96 ×96 99.8% 99.9% 98.7%
+HHT32×32 94.2% 94.7% 90.1%
+HHT96×96 99.0% 99.0% 93.4%
+Table 25:𝐹-measureforCWRdataset.
+Imagetype ProposedCNNarchitecture Architecture1 Architecture2
+Scalogram32 ×32 98.7% 99.2% 92.8%
+Scalogram96 ×96 99.5% 99.8% 96.4%
+Spectrogram32 ×32 98.0% 98.4% 95.8%
+Spectrogram96 ×96 99.5% 99.7% 96.4%
+HHT32×32 84.0% 85.4% 74.4%
+HHT96×96 97.0% 97.2% 82.1%
+theincreasednonlinearityhelpsthearchitecturehandlenoise
+betterthantheotherarchitectureshereexamined.
+8. Traditional Feature Extraction
+Tohaveadirectcomparisonwiththestandardfaultdiagnos-tic approach that relies on manually extracted features, wenow examine the use of extracted features as an input to theCNNarchitecturesdiscussedinthispaper.Thearchitectures
+were modified slightly to accommodate the vector inputs;
+however,thedoubleconvolutionallayerfollowedbyapoolinglayerarchitecturewaskeptintact.8.1. Description of Features. The vibration signals were
+divided into bins of 1024 samples each with an overlappingof 512 samples. Each of these bins was further processed toextract the following features from the original, derivative,andintegralsignals[39,40]:maximumamplitude,rootmeansquare (RMS), peak-to-peak amplitude, crest factor, arith-
+meticmean,variance( 𝜎
+2),skewness(normalized3rdcentral
+moment), kurtosis (normalized 4th central moment), and
+fifth to eleventh normalized central moments. Additionally,the arithmetic mean of the Fourier spectrum [41], dividedinto 25 frequency bands along with the RMS of the first fiveIMFs(empiricalmodedecomposition),wereusedasfeatures.\n=== Page 15 ===\nShockandVibration 15
+Table 26: MFPT 96 ×96scalogramimageswithnoiseinjected.
+Dataset Baseline 5%noise 10%noise
+Normal
+Innerrace
+Outerrace
+Table27:PredictionaccuraciesforMFPTscalogramswithinjectednoise.
+Noisyimageset Architecture2 Architecture1 ProposedCNNarchitecture
+96×96w/5%noise 96.6% 99.9% 99.9%
+96×96w/10%noise 88.6% 91.8% 99.9%
+Table28:PredictionaccuraciesforCWR.
+Model20epochswith
+earlystopping30Epochswithno
+earlystoppingNo overlap
+Architecture2 75.2% 86.7% 67.2%
+Architecture1 90.4% 95.7% 87.2%
+ProposedCNN
+architecture83.1% 98.5% 93.6%
+Table29:PredictionaccuraciesforMFPT.
+Model20epochswith
+earlystopping30epochswithnoearly
+stoppingNo overlap
+Architecture2 79.1% 80.9% 75.2%
+Architecture1 82.9% 75.1% 75.1%
+ProposedCNNarchitecture 96.4% 93.8% 87.3%
+Intotal,seventy-fivefeaturesperbinwerecomputedandeach
+ofthefeatureswasnormalizedusingthemeanandstandarddeviationofthefirstbaselinecondition.
+8.2.ApplicationtoCNNArchitecture. To evaluate the full set
+offeatures,thearchitectureoftheCNNwaschangedslightly
+to incorporate all the features. The following iteration of theproposedarchitecturewasused:Input[75 ×15]-32C[75 ×3]-
+32C[1×3]-32P[2×2]-64C[1×3]-64C[1×3]-64P[2×2]-
+FC[100].Threedifferentscenarioswereexamined:( 1)twentyepochs with early stopping and a stride of fifteen time stepswithanoverlapofeighttimessteps,( 2)thirtyepochswithno
+earlystoppingandstrideoffifteentimestepswithanoverlap
+of eight times steps, and (3)t w e n t ye p o c h sw i t has t r i d eo f
+fifteentimestepswithnooverlap.
+Tables28and29illustratethedifficultiestheCNNarchi-
+tectures had when dealing with the manually constructedfeatures: the prediction accuracies considerably dropped forall the CNN architectures for both MFPT and CWR datasets.Additionalepochswithoutearlystoppingimprovedthe\n=== Page 16 ===\n16 ShockandVibration
+results; however, they are still well below the results of the
+imagerepresentations.FortheMFPTdata,earlystoppinganddata overlap helped the accuracies. For the CWR data, theopposite is true for early stopping. The CWR data benefitedfrommoreepochs;however,theMFPTdatasufferedslightlyfromincreasedepochs.
+TheCNNstrengthisimagesandithasspatialawareness;
+therefore,theorderingofthefeatureswithinthevectorcouldinfluence the output predictions. It should be said that thesizes of the vectors and filters were chosen on the input andconvolutionallayerstominimizethiseffect.
+CNNsareverygoodwhenthedatapassedthroughthem
+is as close to the raw signal as possible, as the strength ofthe convolutional and pooling layers is their ability to learnfeatures which are inherent representation of the data. Ifone manipulates the data too much by engineering featuresin the traditional sense, the CNNs do not perform as well.As illustrated from the results in Tables 28 and 29, theCNNarchitectureshaddifficultiesinallscenarios.Moreover,even in this unfavorable scenario, the proposed architectureoutperformed the others. The stacked convolutional layers,as in the case with infused noise, result in more expressivefeatures to better capture the nonlinearity of the data. Thus,one can argue that, for CNNs, it is optimal to use animage representation of the raw signal instead of a vector ofextractedfeatures.
+9. Concluding Remarks
+Faultdiagnosisofrollingelementbearingisasignificantissuein industry. Detecting faults early to plan maintenance isof great economic value. Prior applications of deep learningbased models tended to be limited by their sensitivity toexperimental noise or their reliance on traditional featureextraction. In this paper, a novel CNN architecture wasapplied to the time-frequency and image representations ofraw vibration signals for use in rolling element bearing faultclassification and diagnosis. This was done without the needfortraditionalfeatureextractionandselectionandtoexploitthedeepCNNsstrengthforfaultdiagnosis:automaticfeature
+extraction.
+To determine the ability for the proposed CNN model
+to accurately diagnose a fault, three time-frequency analysis
+methods(STFT,WT,andHHT)werecompared.Theireffec-tiveness as representations of the raw signal were assessed.Additionally, information loss due to image scaling wasanalyzed which had little effect on the scalogram images, aslight effect on the spectrograms, and larger effect on theHHTimages.Intotal,189,406imageswereanalyzed.
+The proposed CNN architecture showed it is robust
+against experimental noise. Additionally, it showed feature-less learning and automatic learning of the data representa-tions were effective. The proposed architecture delivers thesame accuracies for scalogram images with lower computa-tionalcostsbyreducingthenumberoflearnableparameters.The architecture outperforms similar architectures for bothspectrograms and HHT images. The manual process of fea-ture extraction and the delicate methods of feature selectioncan be substituted with a deep learning framework allowingautomated feature learning, therefore removing any confir-mation biases surrounding one’s prior experience. Overall,theCNNtransformedimageswithminimalmanipulationofthesignalandautomaticallycompletedthefeatureextractionandlearningresultinginamuch-improvedperformance.
+Fault diagnosis is a continually evolving field that has
+vasteconomicpotentialforautomotive,industrial,aerospace,and infrastructure assets. One way to eliminate the bias andrequirement of expert knowledge for feature extraction andselectionistoimplementdeeplearningmethodologieswhichlearn these features automatically. Industries could benefitfrom this approach on projects with limited knowledge, likeinnovativenewsystems.
+Conflicts of Interest
+The authors declare that there are no conflicts of interestregardingthepublicationofthispaper.
+Acknowledgments
+The authors acknowledge the partial financial support ofthe Chilean National Fund for Scientific and TechnologicalDevelopment(Fondecyt)underGrantno.1160494.
+References
+[1] Z.Huo,Y .Zhang,P .Francq,L.Shu,andJ.Huang, IncipientFault
+DiagnosisofRollerBearingUsingOptimizedWaveletTransform
+BasedMulti-SpeedVibrationSignatures ,IEEEAccess,2017.
+[ 2 ]J .W a n g ,J .Z h u a n g ,L .D u a n ,a n dW .C h e n g ,“ Am u l t i - s c a l e
+convolution neural network for featureless fault diagnosis,” in
+ProceedingsoftheInternationalSymposiumonFlexibleAutoma-tion,(ISFA’16) ,pp .1 –3,Cleveland,OH,USA,A ugust2016.
+[3] M.SeeraandC.P .Lim,“Onlinemotorfaultdetectionanddiag-
+nosisusingahybridFMM-CARTmodel,” IEEETransactionson
+Neural Networks and Learning Systems ,v o l .2 5 ,n o .4 ,p p .8 0 6 –
+812,2014.
+[4] K.A.Loparo,Loparo,K.A.,BearingDataCenter,CaseW estern
+ReserveUniversity,http://csegroups.case.edu/bearingdatacenter/pages/welcome-case-western-reserve-university-bearing-data-center-website,2013.
+[5] A. Sharma, M. Amarnath, and P. Kankar, “Feature extraction
+and fault severity classification in ball bearings,” Journal of
+Vibration and Control ,2014.
+[6] P .K.W ong,J.Zhong,Z.Y ang,andC.M.V ong,“SparseBayesian
+extreme learning committee machine for engine simultaneous
+faultdiagnosis,” Neurocomputing ,vol.17 4,pp .331 –343,2016.
+[7] Y. LeCun, Y. Bengio, and G. Hinton, “Deep learning,” Nature,
+vol.521,no .7553,pp .436–444,2015.
+[8] C. Szegedy, W. Liu, Y. Jia et al., “Going deeper with convolu-
+tions,”inProceedingsoftheIEEEConferenceonComputerVision
+andPatternRecognition(CVPR’15) ,pp.1–9,Boston,Mass,USA,
+June 2015.
+[9] J. Tompson, R. Goroshin, A. Jain, Y. LeCun, and C. Bregler,
+“EfficientobjectlocalizationusingConvolutionalNetworks,”in
+Proceedingsofthe2015IEEEConferenceonComputerVisionand
+Pattern Recognition (CVPR) , pp. 648–656, IEEE, Boston, MA,
+USA,June2015.\n=== Page 17 ===\nShockandVibration 17
+[10] Y.Taigman,M.Yang,M.Ranzato,andL.Wolf,“DeepFace:clos-
+ing the gap to human-level performance in face verification,”
+inProceedings of the IEEE Conference on Computer Vision and
+PatternRecognition(CVPR’14) ,pp.1701–1708,Columbus,Ohio,
+USA,June2014.
+[11] P. Sermanet, D. Eigen, X. Zhang, M. Mathieu, R. Fergus, and
+Y. LeCun, “OverFeat: integrated recognition, localization anddetection using convolutional networks,” Computer Vision and
+Pattern Recognition ,2013.
+[12] R. Girshick, J. Donahue, T. Darrell, and J. Malik, “Rich fea-
+ture hierarchies for accurate object detection and semantic
+segmentation,” in Proceedings of the 27th IEEE Conference on
+Computer Vision and Pattern Recognition (CVPR ’14) ,p p .580 –
+587,Columbus,Ohio,USA,June2014.
+[13] K. Simonyan and A. Zisserman, “Very Deep Convolutional
+NetworksforLarge-ScaleImageRecognition,”in Proceedingsof
+theInternationalConferenceonLearningRepresentations(ICRL ,
+p. 14, 2015.
+[14] D. Cires and U. Meier, “Multi-column Deep Neural Networks
+forImageClassification,”in ProceedingsoftheIEEEConference
+on Computer Vision and Pattern Recognition ,p p .3 6 4 2 – 3 6 4 9 ,
+2012.
+[15] A.Krizhevsky,I.Sutskever,andG.E.Hinton,“Imagenetclassifi-
+cationwithdeepconvolutionalneuralnetworks,”in Proceedings
+ofthe26thAnnualConferenceonNeuralInformationProcessing
+Systems (NIPS ’12) , pp. 1–9, Lake Tahoe, Nev, USA, December
+2012.
+[16] Z.Chen,C.Li,andR.-V.Sanchez,“Gearboxfaultidentification
+and classification with convolutional neural networks,” Shock
+andVibration ,vol.2015,ArticleID390134,10pages,2015.
+[17] X. Guo, L. Chen, and C. Shen, “Hierarchical adaptive deep
+convolutionneuralnetworkanditsapplicationtobearingfaultdiagnosis,” Measurement: Journal of the International Measure-
+mentConfederation ,vol.93,pp .490–502,2016.
+[18] L. Guo, H. Gao, H. Huang, X. He, and S. Li, “Multifeatures
+fusionandnonlineardimensionreductionforintelligentbear-ing condition monitoring,” Shock and Vibration ,v o l .2 0 1 6 ,
+ArticleID4632562,10pages,2016.
+[19] O. Abdeljaber, O. Avci, S. Kiranyaz, M. Gabbouj, and D. J.
+Inman,“Real-timevibration-basedstructuraldamagedetection
+usingone-dimensionalconvolutionalneuralnetworks,” Journal
+ofSoundandVibration ,vol.388,pp .154–170,2017 .
+[20] D. Lee, V. Siu, R. Cruz, and C. Yetman, “Convolutional neural
+net and bearing fault analysis,” in Proceedings of the Interna-
+tional Conference on Data Mining series (ICDM) Barcelona ,p p .
+194–200,SanDiego,CA,USA,2016.
+[21] O. Janssens, V. Slavkovikj, B. Vervisch et al., “Convolutional
+neural network based fault detection for rotating machinery,”
+JournalofSoundandVibration ,vol.377 ,pp .331 –345,2016.
+[22] C.Zhang,P.Lim,A.K.Qin,andK.C.Tan,“MultiobjectiveDeep
+Belief Networks Ensemble for Remaining Useful Life Estima-tioninPrognostics,” IEEETransactionsonNeuralNetworksand
+LearningSystems ,vol.PP ,no .99 ,pp .1 –13,2016.
+[23] L. Liao, W. Jin, and R. Pavel, “Enhanced Restricted Boltzmann
+Machine with Prognosability Regularization for Prognosticsa n dH e a l t hA s s e s s m e n t , ” IEEE Transactions on Industrial Elec-
+tronics,vol.63,no.11,pp.7076–7083,2016.
+[24] G. S. Babu, P. Zhao, and X.-L. Li, “Deep convolutional neural
+networkbasedregressionapproachforestimationofremaininguseful life,” Lecture Notes in Computer Science (including sub-
+seriesLectureNotesinArtificialIntelligenceandLectureNotesinBioinformatics) ,vol.9642,pp .214–228,2016.[25] F.Zhou,Y.Gao,andC.Wen,“Anovelmultimodefaultclassifica-
+tionmethodbasedondeeplearning, ”JournalofControlScienceand Engineering ,ArticleID3583610,Art.ID3583610,14pages,
+2017.
+[26] H. Liu, L. Li, and J. Ma, “Rolling bearing fault diagnosis based
+onSTFT-deeplearningandsoundsignals,” ShockandVibration ,
+vol.2016,ArticleID6127479,12pages,2016.
+[27] J. Bouvrie, “Notes on convolutional neural networks,” Defense
+TechnicalInformationCenter,CenterforBiologicalandCom-putationalLearning,2006.
+[28] Z. Feng, M. Liang, and F. Chu, “Recent advances in time-
+fr
+equency analysis methods for machinery fault diagnosis: a
+review with application examples,” Mechanical Systems and
+SignalProcessing ,vol.38,no .1,pp .165–205,2013.
+[29] J. Lin and L. Qu, “Feature extraction based on morlet wavelet
+and its application for mechanical fault diagnosis,” Journal of
+SoundandVibration ,vol.234,no .1,pp .135–148,2000.
+[30] Z. K. Peng and F. L. Chu, “Application of the wavelet trans-
+form in machine condition monitoring and fault diagnostics:a review with bibliography,” Mechanical Systems and Signal
+Processing ,vol.18,no .2,pp .199–221,2004.
+[31] N.E.Huang,“Introductiontothehilbert–huangtransformand
+its related mathematical problems,” in Hilbert–Huang Trans-
+formandItsApplications,vol.16ofInterdisciplinaryMathemat-icalSciences ,pp.1–26,WorldScientific,Singapore,2ndedition,
+2014.
+[32] R. N. Meeson, “HHT sifting and filtering,” in Hilbert-Huang
+Transform And Its Applications ,v o l .5 ,p p .7 5 – 1 0 5 ,I n s t i t u t ef o r
+DefenseAnalyses,Washington,DC,USA,2005.
+[33] J. S. Smith, “The local mean decomposition and its application
+to EEG perception data,” J o u r n a lo ft h eR o y a lS o c i e t yI n t e rf a c e ,
+vol.2,no.5,pp.443–454,2005.
+[34] D. P. Kingma and J. Ba, “Adam: a method for stochastic opti-
+mization,”arXivpreprint,2014,https://arxiv.org/abs/1412.6980.
+[35] Bechhoefer, E., A Quick Introduction to Bearing Envelope
+Analysis, MFPT Data, http://www.mfpt.org/FaultData/Fault-Data.htm.Set,2016.
+[36] H. Raveendran and D. Thomas, “Image fusion using LEP
+filtering and bilinear interpolation,” International Journal of
+Engineering Trends and Technology ,v o l .1 2 ,n o .9 ,p p .4 2 7 – 4 3 1 ,
+2014.
+[37] M. Sokolova and G. Lapalme, “A systematic analysis of perfor-
+mancemeasuresforclassificationtasks,” InformationProcessing
+andManagement ,vol.45,no .4,pp .427 –437 ,2009 .
+[38] W. A. Smith and R. B. Randall, “Rolling element bearing
+d i a g n o s t i c su s i n gt h eC a s eW e s t e r nR e s e r v eU n i v e r s i t yd a t a :
+a benchmark study,” Mechanical Systems and Signal Processing ,
+vol.64-65,pp.100–131,2015.
+[39] B. Samanta, K. R. Al-Balushi, and S. A. Al-Araimi, “Artificial
+neural networks and support vector machines with genetic
+algorithmforbearingfaultdetection,” EngineeringApplications
+ofArtificialIntelligence ,vol.16,no .7 ,pp .657 –665,2003.
+[40] B. Samanta, “Gear fault detection using artificial neural net-
+works and support vector machines with genetic algorithms,”
+MechanicalSystemsandSignalProcessing ,vol.18,no.3,pp.625–
+644,2004.
+[41] A. K. Nandi, C. Liu, and M. D. Wong, “Intelligent Vibration
+Signal Processingfor Condition Monitoring,” Surveillance ,vol.
+7 ,pp .29-30,2013.\n=== Page 18 ===\n,QWHUQDWLRQDO-RXUQDORI
+$HURVSDFH(QJLQHHULQJ
++LQGDZL3XEOLVKLQJ&RUSRUDWLRQ
+KWWSZZZKLQGDZLFRP 9ROXPH
+RoboticsJournal of
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014
+Hindawi Publishing Corporationhttp://www.hindawi.com Volume 2014 Active and Passive  
+Electronic Components
+Control Science
+and Engineering
+Journal of
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014International Journal of
+Rotating
+Machinery
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014
+Hindawi Publishing Corporation http://www.hindawi.com
+ Journal of(QJLQHHULQJ
+Volume 201
+Submit your manuscripts at
+https://www.hindawi.com
+VLSI Design
+Hindawi Publishing Corporationhttp://www.hindawi.com Volume 201-
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014Shock and Vibration
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014Civil EngineeringAdvances in
+Acoustics and VibrationAdvances in
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014Electrical and Computer 
+EngineeringJournal of
+Advances in
+OptoElectronics
+Hindawi Publishing Corporation 
+http://www.hindawi.comVolume 2014The Scientific  
+World Journal
+Hindawi Publishing Corporation http://www.hindawi.com Volume 2014
+SensorsJournal of
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014
+Modelling & 
+Simulation in Engineering
+Hindawi Publishing Corporation 
+http://www.hindawi.com Volume 2014
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014Chemical EngineeringInternational Journal of
+  Antennas and
+PropagationInternational Journal of
+Hindawi Publishing Corporationhttp://www.hindawi.com Volume 2014
+Hindawi Publishing Corporationhttp://www.hindawi.com Volume 2014Navigation and  
+ ObservationInternational Journal of
+Hindawi Publishing Corporation
+http://www.hindawi.com Volume 2014Distributed
+Sensor NetworksInternational Journal of

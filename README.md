@@ -23,7 +23,7 @@
 | WDCNN 模型 | DONE | 1D WDCNN 结构和前向传播已实现 |
 | AdaBN 模块 | PARTIAL | 模块存在，尚未接入正式训练入口 |
 | 训练与评估 | PARTIAL | Trainer/Evaluator 和 S1 baseline 入口已具备，尚未使用真实 CWRU 运行 |
-| S1 baseline | PARTIAL | 代码闭环已形成；当前因本地 `data/raw/` 无 `.mat` 文件，尚无真实 accuracy |
+| S1 baseline | PARTIAL | 代码闭环已形成；当前因本地 `03_data/raw/` 无 `.mat` 文件，尚无真实 accuracy |
 | S2-S6 自动训练、重复实验、论文对比 | NOT IMPLEMENTED | 不在当前闭环范围内 |
 | Day 4 教学线 | DONE | `96×96 CWT + 2D CNN` 仅用于理解卷积，不是 WDCNN 论文输入 |
 
@@ -32,14 +32,14 @@
 正式 Phase 1 只有一条主数据流：
 
 ```text
-data/raw/*.mat
+03_data/raw/*.mat
   → create_scenario(source_load, target_load)
   → 在线 2048 分段与归一化
   → CWRUDataset / DataLoader
   → 1D raw WDCNN
 ```
 
-`data/processed/*.npz` 中保留的 1024 样例属于历史/通用数据模块示例，不是正式 Phase 1 输入，也不会上传到 GitHub。`config/data_config.yaml`、`docs/DATA_MODULE_GUIDE.md` 和 `examples/data_module_example.py` 中的 1024 同样已标记为 legacy/teaching only。
+`03_data/processed/*.npz` 中保留的 1024 样例属于历史/通用数据模块示例，不是正式 Phase 1 输入，也不会上传到 GitHub。`02_code/config/data_config.yaml`、`01_notes/DATA_MODULE_GUIDE.md` 和 `02_code/examples/data_module_example.py` 中的 1024 同样已标记为 legacy/teaching only。
 
 ## 当前可运行命令
 
@@ -47,28 +47,28 @@ data/raw/*.mat
 
 ```powershell
 # 模型结构和前向传播检查
-D:/Anaconda3/python.exe src/models/verify_model.py
+D:/Anaconda3/python.exe 02_code/src/models/verify_model.py
 
 # 单元测试；无真实 .mat 时，S1-S6 场景测试会显示 SKIP
 D:/Anaconda3/python.exe -m pytest -q
 
 # 检查 raw 数据是否就绪；不生成 npz
-D:/Anaconda3/python.exe scripts/02_preprocess_data.py
+D:/Anaconda3/python.exe 02_code/scripts/02_preprocess_data.py
 
 # 只检查 S1-S6 场景构造和泄漏防护，不训练
-D:/Anaconda3/python.exe scripts/04_run_all_scenarios.py --method both
+D:/Anaconda3/python.exe 02_code/scripts/04_run_all_scenarios.py --method both
 
 # 根据已完成的 JSON 结果生成汇总；没有结果时会生成 NOT READY 报告
-D:/Anaconda3/python.exe scripts/05_generate_report.py
+D:/Anaconda3/python.exe 02_code/scripts/05_generate_report.py
 ```
 
-当 `data/raw/` 已放入正式 CWRU `.mat` 文件后，当前唯一已实现的最小训练闭环是：
+当 `03_data/raw/` 已放入正式 CWRU `.mat` 文件后，当前唯一已实现的最小训练闭环是：
 
 ```powershell
-D:/Anaconda3/python.exe scripts/03_run_scenario.py --scenario S1 --method wdcnn
+D:/Anaconda3/python.exe 02_code/scripts/03_run_scenario.py --scenario S1 --method wdcnn
 ```
 
-它执行 `1HP source → WDCNN 训练 → 2HP target 评估`，并将真实结果写入 `experiments/results/`。当前默认训练配置仍是复现假设，不能直接等同于论文全部未说明参数。
+它执行 `1HP source → WDCNN 训练 → 2HP target 评估`，并将真实结果写入 `05_results/`。当前默认训练配置仍是复现假设，不能直接等同于论文全部未说明参数。
 
 ## 尚未实现的正式入口
 
@@ -91,18 +91,17 @@ D:/Anaconda3/python.exe scripts/03_run_scenario.py --scenario S1 --method wdcnn
 ## 目录说明
 
 ```text
-config/       正式配置和场景定义
-src/          数据、模型、AdaBN、训练和评估模块
-scripts/      数据就绪检查、S1 闭环和状态汇总入口
-reports/      pre-flight、进度和一致性审计报告
-figures/day4/ Day 4 教学图
-tests/        pytest 测试
-data/         本地数据目录，不提交原始数据或 processed 样例
+00_original/  论文原文与原始来源（PDF 不提交）
+01_notes/     学习笔记、阶段报告、审计报告和文档
+02_code/      配置、源码、脚本、示例和测试
+03_data/      本地数据目录，不提交原始数据或 processed 样例
+04_experiments/ Day 4 图片、实验过程和日志
+05_results/   可提交的实验结果汇总；模型权重默认不提交
 ```
 
 详细状态见：
 
-- `reports/preflight_check.md`
-- `reports/reproduction_progress.md`
-- `reports/repository_consistency_audit.md`
-- `docs/REPOSITORY_SYNC.md`
+- `01_notes/preflight_check.md`
+- `01_notes/reproduction_progress.md`
+- `01_notes/repository_consistency_audit.md`
+- `01_notes/REPOSITORY_SYNC.md`

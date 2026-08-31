@@ -1,23 +1,26 @@
 # Python
 __pycache__/
+.pytest_cache/
 *.py[cod]
 *.egg-info/
 dist/
 build/
 .eggs/
 
-# Data
-/data/
-/data/raw/*.mat
-/data/processed/*.npz
+# Local data (never commit raw or processed arrays)
+/03_data/
+
+# Original paper archive is local reference material
+/00_original/*.pdf
 
 # Codex local working files
-_codex_workspace/
+/04_experiments/_codex_workspace/
 
 # Experiments
-experiments/results/
-experiments/logs/
-experiments/figures/
+04_experiments/logs/
+04_experiments/figures/
+05_results/*.pt
+05_results/*.pth
 
 # IDE
 .vscode/
